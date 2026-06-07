@@ -24,3 +24,7 @@ me as an admin-level contributor
 - `Developer-CLI-Token`
 - Scope: personal account
 - Expiration: as long as possible
+
+**Also**
+- I dropped off PC for a couple days
+- Have paperwork they gave me in my car
