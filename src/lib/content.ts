@@ -25,12 +25,12 @@ export const site = {
   tagline: "Sound, light, and stream handled so your event just works.",
   description:
     "One Talent Productions is a technical event-production company: live streaming, sound, lighting, video, and AV installation for corporate events, sports, concerts, churches, and venues.",
-  email: "hello@onetalentproductions.com",
+  email: "TBD",
   phone: "+1 (770) 820-8594",
-  location: "On-site & remote · local and regional events",
+  location: "TBD",
   socials: [
-    { label: "Instagram", href: "https://instagram.com" },
-    { label: "YouTube", href: "https://youtube.com" },
+    { label: "Instagram (TBD)", href: "https://instagram.com" },
+    { label: "YouTube (TBD)", href: "https://youtube.com" },
     { label: "Facebook", href: "https://www.facebook.com/share/1LXMTyabat/?mibextid=wwXIfr" },
     { label: "LinkedIn", href: "https://www.linkedin.com/in/christopher-smith-499945155/" },
   ],

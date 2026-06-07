@@ -81,8 +81,16 @@ export function Footer() {
           <p>
             © {year} {site.name}. All rights reserved.
           </p>
-          <p>
-            Crafted with care — light &amp; dark, gold throughout.
+          <p className="text-center sm:text-right">
+            Website by{" "}
+            <a
+              href="https://www.hoppytech.com"
+              target="_blank"
+              rel="noopener"
+              className="font-medium text-gold-strong underline-offset-4 transition-colors hover:text-gold hover:underline"
+            >
+              Hoppy Tech
+            </a>
           </p>
         </div>
       </div>
