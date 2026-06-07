@@ -1,0 +1,479 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * ─────────────────────────────────────────────────────────────
+ * One Talent Productions — Design Tokens
+ * Colors are HSL channel triplets ("H S% L%") for Tailwind alpha support.
+ *
+ * Theme behavior (key acceptance criterion):
+ *  LIGHT  → white / warm gold-tinted neutrals; gold = deep warm amber (hue ~38)
+ *  DARK   → black / warm dark neutrals;        gold = luminous gold   (hue ~43)
+ * The neutral (white↔black) AND the gold hue swap together.
+ * ─────────────────────────────────────────────────────────────
+ */
+
+:root {
+  /* Neutrals — warm white */
+  --background: 40 56% 99%;
+  --foreground: 24 45% 12%;
+  --card: 40 50% 100%;
+  --card-foreground: 24 45% 12%;
+  --muted: 38 42% 94%;
+  --muted-foreground: 26 28% 32%;
+  --border: 36 38% 87%;
+  --ring: 36 92% 46%;
+
+  /* Gold accent — deeper warm amber tuned for WHITE backgrounds */
+  --gold-soft: 44 96% 62%;
+  --gold: 38 94% 48%;
+  --gold-strong: 30 95% 46%;
+  --orange: 22 92% 52%;
+  --gold-ink: 24 70% 18%; /* deep brown for text-on-gold contrast */
+
+  --shadow-color: 28 60% 22%;
+
+  /* Site background — geometric pane intensities (light) */
+  --site-bg-pane-strong: 0.52;
+  --site-bg-pane-mid: 0.38;
+  --site-bg-pane-soft: 0.26;
+  --site-bg-mesh: 0.08;
+  --site-bg-grain-opacity: 0.045;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Sora", "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  color-scheme: light;
+}
+
+.dark {
+  /* Neutrals — warm near-black */
+  --background: 26 22% 5%;
+  --foreground: 40 38% 93%;
+  --card: 28 16% 9%;
+  --card-foreground: 40 38% 93%;
+  --muted: 28 14% 15%;
+  --muted-foreground: 36 20% 72%;
+  --border: 30 16% 20%;
+  --ring: 43 100% 62%;
+
+  /* Gold accent — more luminous + saturated to GLOW against black */
+  --gold-soft: 47 100% 72%;
+  --gold: 43 100% 60%;
+  --gold-strong: 36 100% 56%;
+  --orange: 26 98% 58%;
+  --gold-ink: 26 60% 9%;
+
+  --shadow-color: 0 0% 0%;
+
+  /* Site background — stronger on dark for visibility */
+  --site-bg-pane-strong: 0.58;
+  --site-bg-pane-mid: 0.42;
+  --site-bg-pane-soft: 0.3;
+  --site-bg-mesh: 0.1;
+  --site-bg-grain-opacity: 0.06;
+
+  color-scheme: dark;
+}
+
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: hsl(var(--gold) / 0.3);
+    color: hsl(var(--foreground));
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  .text-gradient-gold {
+    background-image: linear-gradient(
+      110deg,
+      hsl(var(--gold-soft)),
+      hsl(var(--gold)) 45%,
+      hsl(var(--orange))
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Frosted surface that adapts to theme */
+  .surface-glass {
+    background-color: hsl(var(--background) / 0.78);
+    backdrop-filter: saturate(180%) blur(16px);
+    -webkit-backdrop-filter: saturate(180%) blur(16px);
+  }
+
+  /* Frosted panel — blurs geometric bg behind text for legibility */
+  .surface-readable {
+    background-color: hsl(var(--background) / 0.88);
+    backdrop-filter: saturate(190%) blur(20px);
+    -webkit-backdrop-filter: saturate(190%) blur(20px);
+  }
+
+  .dark .surface-readable {
+    background-color: hsl(var(--card) / 0.9);
+  }
+
+  .text-panel {
+    border-radius: 1.25rem;
+    border: 1px solid hsl(var(--border) / 0.7);
+    background-color: hsl(var(--background) / 0.88);
+    backdrop-filter: saturate(190%) blur(20px);
+    -webkit-backdrop-filter: saturate(190%) blur(20px);
+    box-shadow:
+      0 1px 2px hsl(var(--shadow-color) / 0.06),
+      0 10px 32px hsl(var(--shadow-color) / 0.1);
+    padding: 1.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .text-panel {
+      padding: 2rem;
+    }
+  }
+
+  .dark .text-panel {
+    background-color: hsl(var(--card) / 0.9);
+  }
+
+  /* Cards & tiles — frosted so shape colors don't bleed through */
+  .surface-card {
+    background-color: hsl(var(--card) / 0.93);
+    backdrop-filter: saturate(180%) blur(16px);
+    -webkit-backdrop-filter: saturate(180%) blur(16px);
+  }
+
+  .dark .surface-card {
+    background-color: hsl(var(--card) / 0.92);
+  }
+
+  /* Hairline gradient divider */
+  .divider-gold {
+    height: 1px;
+    background-image: linear-gradient(
+      to right,
+      transparent,
+      hsl(var(--gold) / 0.6),
+      transparent
+    );
+  }
+
+  .grain {
+    position: absolute;
+    inset: 0;
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+
+  /* ── Site-wide geometric background ── */
+  .site-background__base {
+    position: absolute;
+    inset: 0;
+    background-color: hsl(var(--background));
+  }
+
+  .site-background__layer {
+    position: absolute;
+    top: -65vh;
+    left: -50%;
+    width: 200%;
+    height: 240vh;
+    min-height: 150rem;
+  }
+
+  /* Shared shape base */
+  .site-bg-shape {
+    position: absolute;
+    pointer-events: none;
+  }
+
+  /* ── Diagonal gradient bands — solid core, soft fade only at far edges ── */
+  .site-bg-shape--band {
+    left: -50%;
+    width: 200%;
+    height: clamp(6rem, 16vh, 12rem);
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--gold-soft) / var(--site-bg-pane-soft)) 6%,
+      hsl(var(--gold) / var(--site-bg-pane-mid)) 22%,
+      hsl(var(--orange) / var(--site-bg-pane-strong)) 50%,
+      hsl(var(--gold) / var(--site-bg-pane-mid)) 78%,
+      hsl(var(--gold-soft) / var(--site-bg-pane-soft)) 94%,
+      transparent 100%
+    );
+  }
+
+  .site-bg-shape--band-a {
+    top: 72vh;
+    transform: rotate(-22deg);
+    height: clamp(7rem, 20vh, 13rem);
+  }
+
+  .site-bg-shape--band-b {
+    top: 98vh;
+    transform: rotate(-9deg);
+    width: 190%;
+    left: -45%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--orange) / var(--site-bg-pane-mid)) 18%,
+      hsl(var(--gold-strong) / var(--site-bg-pane-strong)) 50%,
+      hsl(var(--gold-soft) / var(--site-bg-pane-soft)) 82%,
+      transparent 100%
+    );
+  }
+
+  .site-bg-shape--band-c {
+    top: 128vh;
+    transform: rotate(-28deg);
+    height: clamp(5rem, 12vh, 9rem);
+  }
+
+  .site-bg-shape--band-d {
+    top: 82vh;
+    right: -15%;
+    left: auto;
+    width: 140%;
+    transform: rotate(14deg);
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--gold-strong) / var(--site-bg-pane-strong)) 30%,
+      hsl(var(--orange) / var(--site-bg-pane-mid)) 70%,
+      transparent 100%
+    );
+  }
+
+  .site-bg-shape--band-e {
+    top: 148vh;
+    transform: rotate(6deg);
+    height: clamp(6rem, 16vh, 10rem);
+    width: 170%;
+    left: -35%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--gold-soft) / var(--site-bg-pane-mid)) 22%,
+      hsl(var(--orange) / var(--site-bg-pane-strong)) 78%,
+      transparent 100%
+    );
+  }
+
+  /* ── Angular shards (clip-path polygons) ── */
+  .site-bg-shape--shard {
+    width: clamp(18rem, 42vw, 36rem);
+    height: clamp(10rem, 24vh, 18rem);
+    clip-path: polygon(8% 0%, 100% 18%, 82% 100%, 0% 72%);
+    background: linear-gradient(
+      135deg,
+      hsl(var(--orange) / var(--site-bg-pane-strong)) 0%,
+      hsl(var(--gold) / var(--site-bg-pane-mid)) 50%,
+      hsl(var(--gold-soft) / var(--site-bg-pane-soft)) 100%
+    );
+  }
+
+  .site-bg-shape--shard-a {
+    top: 68vh;
+    right: 2%;
+    transform: rotate(-8deg);
+  }
+
+  .site-bg-shape--shard-b {
+    top: 112vh;
+    left: -2%;
+    width: clamp(14rem, 35vw, 28rem);
+    clip-path: polygon(0% 15%, 88% 0%, 100% 85%, 12% 100%);
+    transform: rotate(12deg);
+  }
+
+  .site-bg-shape--shard-c {
+    top: 158vh;
+    right: 6%;
+    width: clamp(12rem, 28vw, 22rem);
+    height: clamp(8rem, 18vh, 14rem);
+    clip-path: polygon(20% 0%, 100% 30%, 75% 100%, 0% 60%);
+    transform: rotate(-18deg);
+  }
+
+  /* ── Skewed block ── */
+  .site-bg-shape--skew {
+    width: clamp(10rem, 22vw, 18rem);
+    height: clamp(14rem, 32vh, 24rem);
+    background: linear-gradient(
+      160deg,
+      hsl(var(--gold) / var(--site-bg-pane-mid)),
+      hsl(var(--orange) / var(--site-bg-pane-strong))
+    );
+  }
+
+  .site-bg-shape--skew-a {
+    top: 88vh;
+    left: 8%;
+    transform: skewY(-12deg) rotate(-6deg);
+    clip-path: polygon(0 0, 100% 8%, 92% 100%, 5% 92%);
+  }
+
+  /* ── Thin bright beam ── */
+  .site-bg-shape--beam {
+    left: -30%;
+    width: 160%;
+    height: clamp(2.5rem, 6vh, 4rem);
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--gold-soft) / var(--site-bg-pane-mid)) 35%,
+      hsl(var(--orange) / var(--site-bg-pane-strong)) 50%,
+      hsl(var(--gold-soft) / var(--site-bg-pane-mid)) 65%,
+      transparent 100%
+    );
+  }
+
+  .site-bg-shape--beam-a {
+    top: 118vh;
+    transform: rotate(-32deg);
+  }
+
+  /* ── Chevron / zig accents ── */
+  .site-bg-shape--chevron {
+    width: clamp(8rem, 18vw, 14rem);
+    height: clamp(8rem, 18vw, 14rem);
+    clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+    background: linear-gradient(
+      180deg,
+      hsl(var(--gold-soft) / var(--site-bg-pane-mid)),
+      hsl(var(--orange) / var(--site-bg-pane-soft))
+    );
+  }
+
+  .site-bg-shape--chevron-a {
+    top: 132vh;
+    left: 10%;
+    transform: rotate(24deg);
+  }
+
+  .site-bg-shape--chevron-b {
+    top: 78vh;
+    left: 42%;
+    width: clamp(5rem, 12vw, 9rem);
+    height: clamp(5rem, 12vw, 9rem);
+    transform: rotate(-40deg);
+  }
+
+  /* ── Soft glow orbs for depth ── */
+  .site-bg-shape--glow {
+    border-radius: 50%;
+    filter: blur(70px);
+  }
+
+  .site-bg-shape--glow-a {
+    top: 90vh;
+    left: 58%;
+    width: clamp(12rem, 26vw, 18rem);
+    height: clamp(12rem, 26vw, 18rem);
+    background: hsl(var(--orange) / var(--site-bg-pane-strong));
+  }
+
+  .site-bg-shape--glow-b {
+    top: 142vh;
+    left: 18%;
+    width: clamp(14rem, 30vw, 22rem);
+    height: clamp(14rem, 30vw, 22rem);
+    background: hsl(var(--gold) / var(--site-bg-pane-mid));
+  }
+
+  .site-background__mesh {
+    position: absolute;
+    inset: 0;
+    opacity: 1;
+    background-image: repeating-linear-gradient(
+        -16deg,
+        transparent,
+        transparent 64px,
+        hsl(var(--gold) / var(--site-bg-mesh)) 64px,
+        hsl(var(--gold) / var(--site-bg-mesh)) 65px
+      ),
+      repeating-linear-gradient(
+        74deg,
+        transparent,
+        transparent 88px,
+        hsl(var(--orange) / calc(var(--site-bg-mesh) * 0.7)) 88px,
+        hsl(var(--orange) / calc(var(--site-bg-mesh) * 0.7)) 89px
+      ),
+      repeating-linear-gradient(
+        32deg,
+        transparent,
+        transparent 120px,
+        hsl(var(--gold-strong) / calc(var(--site-bg-mesh) * 0.45)) 120px,
+        hsl(var(--gold-strong) / calc(var(--site-bg-mesh) * 0.45)) 121px
+      );
+    mask-image: radial-gradient(
+      ellipse 95% 85% at 50% 40%,
+      black 0%,
+      transparent 88%
+    );
+  }
+
+  .site-background__vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse 130% 95% at 50% 0%,
+      transparent 58%,
+      hsl(var(--background) / 0.22) 100%
+    );
+  }
+
+  .site-background__grain {
+    opacity: var(--site-bg-grain-opacity);
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--gold) / 0.5);
+  border: 3px solid hsl(var(--muted));
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--gold) / 0.8);
+}
