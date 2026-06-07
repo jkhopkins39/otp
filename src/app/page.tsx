@@ -5,13 +5,19 @@ import { Button } from "@/components/ui/button";
 import { ProjectCard } from "@/components/work/project-card";
 import { ClientMarquee } from "@/components/work/client-marquee";
 import { services, projects } from "@/lib/content";
+import { listPosts } from "@/lib/posts-store";
 
-export default function HomePage() {
+/** Refresh the featured latest post periodically. */
+export const revalidate = 60;
+
+export default async function HomePage() {
   const featured = projects.filter((p) => p.featured).slice(0, 3);
+  const posts = await listPosts();
+  const latestPost = posts[0] ?? null;
 
   return (
     <>
-      <Hero />
+      <Hero latestPost={latestPost} />
 
       {/* Clients strip */}
       <section className="surface-readable border-y border-border py-6 sm:py-7">
