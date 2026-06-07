@@ -66,7 +66,7 @@ export async function createPostAction(
     return { ok: false, errors };
   }
 
-  insertPost({
+  await insertPost({
     title: input.title,
     body: input.body,
     videoId: videoId ?? "",
@@ -80,7 +80,7 @@ export async function createPostAction(
 export async function deletePostAction(id: string): Promise<{ ok: boolean }> {
   if (!(await isAuthed())) return { ok: false };
 
-  deletePost(id);
+  await deletePost(id);
   revalidatePath("/blog");
   revalidatePath("/admin");
   return { ok: true };

@@ -12,8 +12,8 @@ export const metadata: Metadata = {
     "News and updates from One Talent Productions — recent jobs, gear, and behind-the-scenes notes.",
 };
 
-export default function BlogPage() {
-  const posts = listPosts();
+export default async function BlogPage() {
+  const posts = await listPosts();
 
   return (
     <>

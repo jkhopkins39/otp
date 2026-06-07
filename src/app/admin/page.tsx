@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 export default async function AdminPage() {
   if (!(await isAuthed())) redirect("/admin/login");
 
-  const posts = listPosts();
+  const posts = await listPosts();
 
   return (
     <section className="container py-12 sm:py-16">

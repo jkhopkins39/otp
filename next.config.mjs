@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Keep the native SQLite module out of the bundler so it loads at runtime.
-  serverExternalPackages: ["better-sqlite3"],
   images: {
     remotePatterns: [
       {
