@@ -415,35 +415,7 @@
   }
 
   .site-background__mesh {
-    position: absolute;
-    inset: 0;
-    opacity: 1;
-    background-image: repeating-linear-gradient(
-        -16deg,
-        transparent,
-        transparent 64px,
-        hsl(var(--gold) / var(--site-bg-mesh)) 64px,
-        hsl(var(--gold) / var(--site-bg-mesh)) 65px
-      ),
-      repeating-linear-gradient(
-        74deg,
-        transparent,
-        transparent 88px,
-        hsl(var(--orange) / calc(var(--site-bg-mesh) * 0.7)) 88px,
-        hsl(var(--orange) / calc(var(--site-bg-mesh) * 0.7)) 89px
-      ),
-      repeating-linear-gradient(
-        32deg,
-        transparent,
-        transparent 120px,
-        hsl(var(--gold-strong) / calc(var(--site-bg-mesh) * 0.45)) 120px,
-        hsl(var(--gold-strong) / calc(var(--site-bg-mesh) * 0.45)) 121px
-      );
-    mask-image: radial-gradient(
-      ellipse 95% 85% at 50% 40%,
-      black 0%,
-      transparent 88%
-    );
+    display: none;
   }
 
   .site-background__vignette {
