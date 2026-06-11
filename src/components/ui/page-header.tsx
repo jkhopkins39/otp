@@ -10,15 +10,15 @@ export function PageHeader({
   description?: React.ReactNode;
 }) {
   return (
-    <section className="relative overflow-hidden border-b border-border">
-      <div className="container py-16 sm:py-20 lg:py-24">
-        <div className="text-panel flex max-w-3xl flex-col items-start gap-5">
+    <section className="relative overflow-hidden surface-readable">
+      <div className="container py-5 sm:py-7">
+        <div className="flex max-w-3xl flex-col gap-3">
           <Eyebrow>{eyebrow}</Eyebrow>
-          <h1 className="font-display text-4xl font-extrabold leading-[1.04] tracking-tight sm:text-5xl lg:text-6xl">
+          <h1 className="font-display text-2xl font-extrabold tracking-tight sm:text-3xl lg:text-4xl">
             {title}
           </h1>
           {description ? (
-            <p className="max-w-2xl text-lg leading-relaxed text-muted-foreground">
+            <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">
               {description}
             </p>
           ) : null}

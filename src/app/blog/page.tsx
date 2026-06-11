@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Blog",
   description:
-    "News and updates from One Talent Productions — recent jobs, gear, and behind-the-scenes notes.",
+    "Production updates, field notes, and AV tips from One Talent Productions in West Georgia.",
 };
 
 export default async function BlogPage() {
@@ -21,13 +21,13 @@ export default async function BlogPage() {
         eyebrow="News & updates"
         title={
           <>
-            Recent jobs, gear &amp; the{" "}
-            <span className="text-gradient-gold">behind-the-scenes</span>.
+            News and updates from{" "}
+            <span className="text-gradient-gold">One Talent</span>.
           </>
         }
-        description="Notes from the field — what we set up, what we learned, and a look behind the curtain."
+        description="Production updates and field notes from our AV and event production work across West Georgia."
       />
-      <Section className="pt-12 sm:pt-14">
+      <Section className="pt-4 sm:pt-5 lg:pt-6 pb-16 sm:pb-20 lg:pb-24">
         <PostFeed posts={posts} />
       </Section>
     </>

@@ -16,20 +16,19 @@ export default function AboutPage() {
         eyebrow="About us"
         title={
           <>
-            One{" "}
-            <span className="text-gradient-gold">talent</span>, put to work for
-            your event.
+            AV and event production in{" "}
+            <span className="text-gradient-gold">West Georgia</span>.
           </>
         }
-        description={`${site.name} takes its name from the parable of the talents (Matthew 25:14–30). A servant is given one talent and buries it in the ground rather than putting it to use — and that's the mistake we built this company to avoid. At OTP, we aim to provide high-quality technical services that go above and beyond the norm, saving you money and time and proving you can entrust us with your needs no matter the scale.`}
+        description={`${site.name} takes its name from the parable of the talents (Matthew 25). We built this company on the idea that skills and equipment should be put to work. We provide professional AV production, sound, and lighting services across West Georgia and the surrounding area.`}
       />
 
       {/* Founder */}
-      <Section className="pt-12 sm:pt-14 lg:pt-16">
+      <Section className="pt-6 sm:pt-8 lg:pt-10">
         <SectionHeading
-          eyebrow="Who runs the show"
-          title="Lean, hands-on, and accountable."
-          description="One Talent Productions is a focused technical operation — when you book us, you get the person who actually runs your event, not a hand-off."
+          eyebrow="The team"
+          title="Hands-on and accountable."
+          description="When you book One Talent Productions, you get the person who actually runs your event."
         />
         <div className="mt-12 grid gap-8 rounded-3xl border border-border surface-card p-6 shadow-soft sm:grid-cols-[auto_1fr] sm:items-center sm:p-8">
           {team.map((member) => (
@@ -46,10 +45,9 @@ export default function AboutPage() {
                   {member.role}
                 </p>
                 <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                  A technical-first producer who lives in the gear — streaming
-                  encoders, mixing consoles, lighting rigs, and the wiring that
-                  ties a venue together. Calm under pressure, prepared for the
-                  what-ifs, and focused on one thing: your event going right.
+                  Technical producer with hands-on experience in live streaming,
+                  sound, lighting, and AV installation. Based in West Georgia,
+                  focused on getting your event right from setup to teardown.
                 </p>
               </div>
             </div>

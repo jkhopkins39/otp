@@ -1,10 +1,3 @@
-/**
- * ───────────────────────────────────────────────────────────────
- * SITE CONTENT — edit this file to customize copy & data.
- * Portfolio items, services, clients, testimonials, and team all
- * live here so non-developers can swap content without touching JSX.
- * ───────────────────────────────────────────────────────────────
- */
 import type { LucideIcon } from "lucide-react";
 import {
   Radio,
@@ -20,14 +13,13 @@ import {
 export const site = {
   name: "One Talent Productions",
   shortName: "One Talent",
-  /** Navbar / footer coin mark (public/assets). */
   logoSrc: "/assets/otp-logo.png",
-  tagline: "Sound, light, and stream handled so your event just works.",
+  tagline: "AV production, sound, and lighting for events in West Georgia.",
   description:
-    "One Talent Productions is a technical event-production company: live streaming, sound, lighting, video, and AV installation for corporate events, sports, concerts, churches, and venues.",
+    "One Talent Productions is an AV and event production company based in West Georgia, GA. We handle live streaming, sound, lighting, video, and AV installation for churches, venues, corporate events, concerts, and sports.",
   email: "TBD",
   phone: "+1 (770) 820-8594",
-  location: "TBD",
+  location: "West Georgia, GA",
   socials: [
     { label: "Instagram (TBD)", href: "https://instagram.com" },
     { label: "YouTube (TBD)", href: "https://youtube.com" },
@@ -41,6 +33,7 @@ export const nav = [
   { label: "About", href: "/about" },
   { label: "Portfolio", href: "/portfolio" },
   { label: "Blog", href: "/blog" },
+  { label: "Contact", href: "/contact" },
 ];
 
 export type Service = {
@@ -53,37 +46,37 @@ export const services: Service[] = [
   {
     title: "Live Streaming & Broadcast",
     description:
-      "Multi-camera live streams for corporate events, conferences, and sports",
+      "Multi-camera live streaming for corporate events, conferences, church services, and sports across Georgia.",
     icon: Radio,
   },
   {
     title: "Sound & Audio",
     description:
-      "PA systems, live mixing, and clear, balanced audio for concerts, services, and events of any size.",
+      "Professional PA systems and live audio mixing for concerts, church services, and events of any size.",
     icon: Volume2,
   },
   {
     title: "Lighting & Staging",
     description:
-      "Stage and event lighting designed and run to set the mood and keep focus where it belongs.",
+      "Stage and event lighting for concerts, services, and productions in West Georgia.",
     icon: Lightbulb,
   },
   {
     title: "Video Production",
     description:
-      "On-site capture and recap edits that let your event live on after the lights come down.",
+      "On-site video capture and recap edits for events, conferences, and productions.",
     icon: Video,
   },
   {
     title: "AV Installation",
     description:
-      "Permanent sound, video, and streaming systems installed for churches, venues, and event spaces.",
+      "Permanent sound, video, and streaming systems installed for churches, venues, and event spaces in Georgia.",
     icon: Cable,
   },
   {
     title: "Maintenance & Support",
     description:
-      "Ongoing upkeep, troubleshooting, and on-call support so your gear is ready every single time.",
+      "AV maintenance, troubleshooting, and on-call support for installed systems.",
     icon: Wrench,
   },
 ];
@@ -93,7 +86,6 @@ export type Project = {
   category: string;
   year: string;
   blurb: string;
-  /** Tailwind gradient classes used for the placeholder art. Swap for <Image> later. */
   accent: string;
   featured?: boolean;
 };
@@ -111,7 +103,7 @@ export const projects: Project[] = [
     title: "Regional Sports Broadcast",
     category: "Live Stream",
     year: "2025",
-    blurb: "Multi-cam streaming setup for a regional tournament, with live scoreboard integration.",
+    blurb: "Multi-camera streaming setup for a regional tournament with live scoreboard integration.",
     accent: "from-yellow-300 via-amber-500 to-orange-600",
     featured: true,
   },
@@ -119,7 +111,7 @@ export const projects: Project[] = [
     title: "Sanctuary AV Upgrade",
     category: "AV Install",
     year: "2025",
-    blurb: "Full sound, lighting, and streaming system installed for a growing church.",
+    blurb: "Full sound, lighting, and streaming system installed for a growing church in Georgia.",
     accent: "from-orange-300 via-amber-500 to-yellow-500",
     featured: true,
   },
@@ -127,7 +119,7 @@ export const projects: Project[] = [
     title: "Spring Formal",
     category: "Sound & Lighting",
     year: "2024",
-    blurb: "Stage lighting and sound for a school dance — built for the room, run all night.",
+    blurb: "Stage lighting and sound for a school dance, built for the room and run all night.",
     accent: "from-amber-500 via-orange-600 to-red-600",
   },
   {
@@ -146,7 +138,6 @@ export const projects: Project[] = [
   },
 ];
 
-// Placeholder client names — swap for the real organizations served.
 export const clients = [
   "Grace Community Church",
   "Riverside Sports",
@@ -173,13 +164,13 @@ export const testimonials: Testimonial[] = [
   },
   {
     quote:
-      "Our new sanctuary sound and streaming setup is night and day — clear audio, and easy for our volunteers to run.",
+      "Our new sanctuary sound and streaming system made a huge difference. Clear audio and simple enough for our volunteers to run every week.",
     name: "Pastor",
     role: "Cornerstone Church",
   },
   {
     quote:
-      "Sound, lights, and a live feed for the whole tournament — set up early and rock solid all weekend.",
+      "Sound, lights, and a live feed for the whole tournament. Set up early and rock solid all weekend.",
     name: "Athletics Director",
     role: "Metro Athletics",
   },
@@ -201,19 +192,19 @@ export const values: Value[] = [
   {
     title: "Faithful with every detail",
     description:
-      "Our name comes from the parable of the talents (Matthew 25): whatever we're trusted with, we put to work and steward well.",
+      "Our name comes from the parable of the talents (Matthew 25). Whatever we are trusted with, we put to work.",
     icon: HeartHandshake,
   },
   {
     title: "Show-ready, every time",
     description:
-      "Gear tested, backups ready, set up early. When it's go time, it just works — no surprises.",
+      "Gear tested, backups ready, set up early. When it is go time, it just works.",
     icon: ShieldCheck,
   },
   {
-    title: "The right tool, dialed in",
+    title: "The right gear for the job",
     description:
-      "We're technical first — the correct equipment, properly configured and maintained for your space and your event.",
+      "The correct equipment, properly configured and maintained for your space and your event.",
     icon: Wrench,
   },
 ];
@@ -228,10 +219,9 @@ export const team: TeamMember[] = [
   { name: "Austin Smith", role: "Founder & Lead Technician", initials: "AS" },
 ];
 
-// Placeholder figures — update with real numbers.
 export const stats = [
   { value: "200+", label: "Events covered" },
   { value: "75+", label: "Live streams run" },
   { value: "20+", label: "Venues equipped" },
-  { value: "8 yrs", label: "On the job" },
+  { value: "8 yrs", label: "In the field" },
 ];

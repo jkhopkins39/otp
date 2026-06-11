@@ -27,7 +27,7 @@ export function PostFeed({
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-4 flex items-center justify-between">
         <h2 className="inline-flex items-center gap-2 font-display text-xl font-bold">
           <FileText className="h-5 w-5 text-gold" />
           Latest posts
@@ -50,7 +50,7 @@ export function PostFeed({
           </p>
         </div>
       ) : (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-5">
           {posts.map((post) => (
             <PostCard
               key={post.id}

@@ -90,7 +90,7 @@ export function Navbar() {
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <Button
-              href="/blog"
+              href="/contact"
               size="sm"
               className="hidden lg:inline-flex"
             >
@@ -164,7 +164,7 @@ export function Navbar() {
                   show: { opacity: 1, x: 0 },
                 }}
               >
-                <Button href="/blog" className="w-full" size="lg">
+                <Button href="/contact" className="w-full" size="lg">
                   Start a project
                   <ArrowUpRight className="h-4 w-4" />
                 </Button>

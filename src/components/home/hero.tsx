@@ -18,11 +18,11 @@ export function Hero({ latestPost }: { latestPost: Post | null }) {
           </span>
 
           <h1 className="mt-4 font-display text-[2.15rem] font-extrabold leading-[1.04] tracking-tight sm:text-5xl lg:text-[3.5rem]">
-            Sound, light, and{" "}
-            <span className="text-gradient-gold">stream</span>, run by one
-            technical{" "}
+            Sound, lighting, and live{" "}
+            <span className="text-gradient-gold">streaming</span>{" "}
+            for events in{" "}
             <span className="relative inline-block">
-              crew
+              West Georgia
               <svg
                 viewBox="0 0 300 14"
                 className="absolute -bottom-2 left-0 h-3 w-full text-gold"
@@ -41,10 +41,9 @@ export function Hero({ latestPost }: { latestPost: Post | null }) {
           </h1>
 
           <p className="mt-5 max-w-xl text-base leading-relaxed text-foreground/80">
-            {site.name} handles the technical side of live events — streaming,
-            audio, lighting, video, and AV installation. We bring the gear and
-            the know-how so corporate events, concerts, services, and broadcasts
-            run without a hitch.
+            {site.name} is a full-service AV and production company in West
+            Georgia. We handle sound, lighting, live streaming, video, and AV
+            installation for churches, corporate events, concerts, and sports.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">

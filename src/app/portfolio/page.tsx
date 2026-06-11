@@ -4,26 +4,26 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Testimonials } from "@/components/work/testimonials";
 
 export const metadata: Metadata = {
-  title: "Reviews",
+  title: "Client Reviews",
   description:
-    "What clients say about working with One Talent Productions on live streaming, sound, lighting, video, and AV installation.",
+    "Reviews from churches, venues, and event teams who have worked with One Talent Productions for AV, sound, and lighting in Georgia.",
 };
 
 export default function PortfolioPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Reviews"
+        eyebrow="Client reviews"
         title={
           <>
-            Don&apos;t take our word for it —{" "}
-            <span className="text-gradient-gold">take theirs</span>.
+            What our{" "}
+            <span className="text-gradient-gold">clients</span> say.
           </>
         }
-        description="A few words from the churches, venues, and teams we've worked with."
+        description="Reviews from churches, venues, and event teams we have worked with across Georgia."
       />
 
-      <Section className="pt-12 sm:pt-14 lg:pt-16">
+      <Section className="pt-6 sm:pt-8 lg:pt-10">
         <Testimonials />
       </Section>
     </>

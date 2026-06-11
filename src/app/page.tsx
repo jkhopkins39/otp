@@ -23,7 +23,7 @@ export default async function HomePage() {
       <section className="surface-readable border-y border-border py-6 sm:py-7">
         <div className="container flex flex-col gap-4">
           <p className="text-center text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-            Trusted by churches, venues, and teams that can&apos;t go dark
+            Trusted by churches, venues, and event teams across Georgia
           </p>
           <ClientMarquee />
         </div>
@@ -36,11 +36,11 @@ export default async function HomePage() {
           eyebrow="What we do"
           title={
             <>
-              One crew for sound, light,{" "}
-              <span className="text-gradient-gold">stream</span>, and screen.
+              Sound, lighting, AV, and live{" "}
+              <span className="text-gradient-gold">streaming</span>.
             </>
           }
-          description="Streaming, audio, lighting, video, and AV installation under one roof — fewer vendors to chase and one team accountable for your event."
+          description="Sound, lighting, streaming, video, and AV installation from one production company. One team, one call, one point of contact."
         />
 
         <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -78,8 +78,8 @@ export default async function HomePage() {
             eyebrow="Recent work"
             title={
               <>
-                Events we&apos;ve{" "}
-                <span className="text-gradient-gold">powered</span> recently.
+                Recent{" "}
+                <span className="text-gradient-gold">work</span>.
               </>
             }
           />
@@ -107,12 +107,12 @@ export default async function HomePage() {
               Have an event coming up?
             </h2>
             <p className="text-sm font-medium leading-relaxed text-gold-ink/80 sm:text-base">
-              Tell us the date, the venue, and what it needs to do. We&apos;ll
-              bring the gear, the crew, and a setup that just works.
+              Tell us about your event and we will handle the AV, sound, and
+              lighting from load-in to teardown.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-3">
               <Button
-                href="/blog"
+                href="/contact"
                 variant="secondary"
                 size="md"
                 className="border-transparent bg-background text-foreground"
