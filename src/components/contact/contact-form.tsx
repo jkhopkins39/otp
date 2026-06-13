@@ -106,19 +106,32 @@ export function ContactForm() {
     setState("submitting");
 
     const form = e.currentTarget;
-    const data = new FormData(form);
+    const fd = new FormData(form);
 
-    // Merge checkbox services into a single field Web3Forms can read
-    data.delete("services");
-    data.append("Services Needed", services.length > 0 ? services.join(", ") : "None selected");
+    const payload: Record<string, string> = {
+      full_name: String(fd.get("full_name") ?? ""),
+      email: String(fd.get("email") ?? ""),
+      phone: String(fd.get("phone") ?? ""),
+      event_type: String(fd.get("event_type") ?? ""),
+      event_date: String(fd.get("event_date") ?? ""),
+      venue: String(fd.get("venue") ?? ""),
+      expected_attendance: String(fd.get("expected_attendance") ?? ""),
+      venue_type: String(fd.get("venue_type") ?? ""),
+      services: services.length > 0 ? services.join(", ") : "",
+      setup_window: String(fd.get("setup_window") ?? ""),
+      budget_range: String(fd.get("budget_range") ?? ""),
+      referral_source: String(fd.get("referral_source") ?? ""),
+      additional_details: String(fd.get("additional_details") ?? ""),
+    };
 
     try {
-      const res = await fetch("https://api.web3forms.com/submit", {
+      const res = await fetch("/api/contact", {
         method: "POST",
-        body: data,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
       const json = await res.json();
-      if (json.success) {
+      if (res.ok && json.success) {
         setState("success");
         form.reset();
         setServices([]);
@@ -155,12 +168,8 @@ export function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-      {/* Web3Forms access key — set NEXT_PUBLIC_WEB3FORMS_KEY in .env.local */}
-      <input type="hidden" name="access_key" value={process.env.NEXT_PUBLIC_WEB3FORMS_KEY ?? ""} />
-      <input type="hidden" name="subject" value="New Event Inquiry — One Talent Productions" />
-      <input type="hidden" name="from_name" value="One Talent Productions Website" />
       {/* Honeypot */}
-      <input type="checkbox" name="botcheck" className="hidden" aria-hidden="true" />
+      <input type="text" name="_honey" className="hidden" aria-hidden="true" />
 
       {/* ── 1 · Contact Info ─────────────────────────────── */}
       <SectionDivider step="1" title="Contact Information" />
@@ -170,7 +179,7 @@ export function ContactForm() {
           <Label required>Full Name</Label>
           <input
             type="text"
-            name="Full Name"
+            name="full_name"
             placeholder="Jane Smith"
             required
             autoComplete="name"
@@ -182,7 +191,7 @@ export function ContactForm() {
           <Label required>Email Address</Label>
           <input
             type="email"
-            name="Email"
+            name="email"
             placeholder="you@example.com"
             required
             autoComplete="email"
@@ -194,7 +203,7 @@ export function ContactForm() {
           <Label required>Phone Number</Label>
           <input
             type="tel"
-            name="Phone Number"
+            name="phone"
             placeholder="(555) 555-5555"
             required
             autoComplete="tel"
@@ -209,7 +218,7 @@ export function ContactForm() {
       <div className="grid gap-4 sm:grid-cols-2">
         <FieldGroup>
           <Label required>Type of Event</Label>
-          <select name="Event Type" required className={cn(fieldBase, "cursor-pointer")}>
+          <select name="event_type" required className={cn(fieldBase, "cursor-pointer")}>
             <option value="">Select an event type…</option>
             {EVENT_TYPES.map((t) => (
               <option key={t} value={t}>{t}</option>
@@ -221,7 +230,7 @@ export function ContactForm() {
           <Label>Event Date</Label>
           <input
             type="date"
-            name="Event Date"
+            name="event_date"
             className={cn(fieldBase, "cursor-pointer")}
           />
         </FieldGroup>
@@ -230,7 +239,7 @@ export function ContactForm() {
           <Label>Venue Name &amp; Location</Label>
           <input
             type="text"
-            name="Venue"
+            name="venue"
             placeholder="The Grand Hall, Carrollton, GA"
             className={fieldBase}
           />
@@ -238,7 +247,7 @@ export function ContactForm() {
 
         <FieldGroup>
           <Label>Expected Attendance</Label>
-          <select name="Expected Attendance" className={cn(fieldBase, "cursor-pointer")}>
+          <select name="expected_attendance" className={cn(fieldBase, "cursor-pointer")}>
             <option value="">Select a range…</option>
             {ATTENDANCE_OPTIONS.map((o) => (
               <option key={o} value={o}>{o}</option>
@@ -248,7 +257,7 @@ export function ContactForm() {
 
         <FieldGroup>
           <Label>Indoor or Outdoor?</Label>
-          <select name="Venue Type" className={cn(fieldBase, "cursor-pointer")}>
+          <select name="venue_type" className={cn(fieldBase, "cursor-pointer")}>
             <option value="">Select…</option>
             <option value="Indoor">Indoor</option>
             <option value="Outdoor">Outdoor</option>
@@ -306,7 +315,7 @@ export function ContactForm() {
       <div className="grid gap-4 sm:grid-cols-2">
         <FieldGroup>
           <Label>Setup / Load-in Window</Label>
-          <select name="Setup Window" className={cn(fieldBase, "cursor-pointer")}>
+          <select name="setup_window" className={cn(fieldBase, "cursor-pointer")}>
             <option value="">Select…</option>
             {SETUP_WINDOWS.map((w) => (
               <option key={w} value={w}>{w}</option>
@@ -316,7 +325,7 @@ export function ContactForm() {
 
         <FieldGroup>
           <Label>Estimated Budget</Label>
-          <select name="Budget Range" className={cn(fieldBase, "cursor-pointer")}>
+          <select name="budget_range" className={cn(fieldBase, "cursor-pointer")}>
             <option value="">Select a range…</option>
             {BUDGET_RANGES.map((b) => (
               <option key={b} value={b}>{b}</option>
@@ -326,7 +335,7 @@ export function ContactForm() {
 
         <FieldGroup className="sm:col-span-2">
           <Label>How did you hear about us?</Label>
-          <select name="Referral Source" className={cn(fieldBase, "cursor-pointer")}>
+          <select name="referral_source" className={cn(fieldBase, "cursor-pointer")}>
             <option value="">Select…</option>
             {REFERRAL_SOURCES.map((r) => (
               <option key={r} value={r}>{r}</option>
@@ -337,7 +346,7 @@ export function ContactForm() {
         <FieldGroup className="sm:col-span-2">
           <Label>Anything else we should know?</Label>
           <textarea
-            name="Additional Details"
+            name="additional_details"
             rows={4}
             placeholder="Tell us about any special requirements, recurring events, existing equipment, accessibility needs, or anything else that would help us prepare."
             className={cn(fieldBase, "resize-y leading-relaxed")}
@@ -349,7 +358,11 @@ export function ContactForm() {
       {state === "error" && (
         <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/8 px-4 py-3 text-sm text-destructive">
           <AlertCircle className="h-4 w-4 shrink-0" />
-          Something went wrong. Please try again or email us directly.
+          Something went wrong. Please try again or email us at{" "}
+          <a href="mailto:onetalentproductions@gmail.com" className="underline">
+            onetalentproductions@gmail.com
+          </a>
+          .
         </div>
       )}
 

@@ -17,7 +17,7 @@ export const site = {
   tagline: "AV production, sound, and lighting for events in West Georgia.",
   description:
     "One Talent Productions is an AV and event production company based in West Georgia, GA. We handle live streaming, sound, lighting, video, and AV installation for churches, venues, corporate events, concerts, and sports.",
-  email: "TBD",
+  email: "onetalentproductions@gmail.com",
   phone: "+1 (770) 820-8594",
   location: "West Georgia, GA",
   socials: [

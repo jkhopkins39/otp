@@ -4,20 +4,24 @@ import { Section, SectionHeading } from "@/components/ui/section";
 import { Button } from "@/components/ui/button";
 import { ProjectCard } from "@/components/work/project-card";
 import { ClientMarquee } from "@/components/work/client-marquee";
-import { services, projects } from "@/lib/content";
-import { listPosts } from "@/lib/posts-store";
+import { services } from "@/lib/content";
+import { getFeaturedPost } from "@/lib/posts-store";
+import { listVenues, listJobs } from "@/lib/site-store";
 
-/** Refresh the featured latest post periodically. */
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const featured = projects.filter((p) => p.featured).slice(0, 3);
-  const posts = await listPosts();
-  const latestPost = posts[0] ?? null;
+  const [featuredPost, venues, jobs] = await Promise.all([
+    getFeaturedPost(),
+    listVenues(),
+    listJobs(),
+  ]);
+
+  const featuredJobs = jobs.filter((j) => j.featured).slice(0, 3);
 
   return (
     <>
-      <Hero latestPost={latestPost} />
+      <Hero latestPost={featuredPost} />
 
       {/* Clients strip */}
       <section className="surface-readable border-y border-border py-6 sm:py-7">
@@ -25,7 +29,7 @@ export default async function HomePage() {
           <p className="text-center text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
             Trusted by churches, venues, and event teams across Georgia
           </p>
-          <ClientMarquee />
+          <ClientMarquee venues={venues} />
         </div>
       </section>
 
@@ -71,32 +75,43 @@ export default async function HomePage() {
       </Section>
 
       {/* Featured work */}
-      <Section className="surface-readable border-y border-border py-12 sm:py-14 lg:py-16">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <SectionHeading
-            compact
-            eyebrow="Recent work"
-            title={
-              <>
-                Recent{" "}
-                <span className="text-gradient-gold">work</span>.
-              </>
-            }
-          />
-          <Button href="/portfolio" variant="outline" size="md" className="shrink-0">
-            See all work
-            <ArrowRight className="h-4 w-4" />
-          </Button>
-        </div>
+      {featuredJobs.length > 0 && (
+        <Section className="surface-readable border-y border-border py-12 sm:py-14 lg:py-16">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <SectionHeading
+              compact
+              eyebrow="Recent work"
+              title={
+                <>
+                  Recent{" "}
+                  <span className="text-gradient-gold">work</span>.
+                </>
+              }
+            />
+            <Button href="/portfolio" variant="outline" size="md" className="shrink-0">
+              See all reviews
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
 
-        <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {featured.map((project) => (
-            <li key={project.title}>
-              <ProjectCard project={project} />
-            </li>
-          ))}
-        </ul>
-      </Section>
+          <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {featuredJobs.map((job) => (
+              <li key={job.id}>
+                <ProjectCard
+                  project={{
+                    title: job.title,
+                    category: job.category,
+                    year: job.year,
+                    blurb: job.blurb,
+                    accent: "from-amber-400 via-orange-500 to-rose-500",
+                    featured: job.featured,
+                  }}
+                />
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
 
       {/* CTA */}
       <Section className="py-12 sm:py-14 lg:py-16">
@@ -125,7 +140,7 @@ export default async function HomePage() {
                 size="md"
                 className="bg-gold-ink text-background shadow-none hover:bg-gold-ink/90 dark:text-foreground"
               >
-                See our work
+                See client reviews
               </Button>
             </div>
           </div>

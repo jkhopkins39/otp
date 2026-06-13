@@ -1,26 +1,22 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { clients } from "@/lib/content";
+import type { DbVenue } from "@/lib/site-store";
 
-/**
- * Infinite, gpu-friendly logo marquee. Duplicates the list and animates the
- * track by -50%. Pauses on hover and collapses to a static wrap when the user
- * prefers reduced motion.
- */
-export function ClientMarquee() {
+export function ClientMarquee({ venues }: { venues: DbVenue[] }) {
   const reduce = useReducedMotion();
-  const row = [...clients, ...clients];
+  const names = venues.map((v) => v.name);
+  const row = [...names, ...names];
 
   if (reduce) {
     return (
       <ul className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
-        {clients.map((c) => (
+        {names.map((name) => (
           <li
-            key={c}
+            key={name}
             className="font-display text-lg font-semibold text-muted-foreground"
           >
-            {c}
+            {name}
           </li>
         ))}
       </ul>
@@ -35,12 +31,12 @@ export function ClientMarquee() {
         transition={{ duration: 28, ease: "linear", repeat: Infinity }}
         style={{ willChange: "transform" }}
       >
-        {row.map((c, i) => (
+        {row.map((name, i) => (
           <li
-            key={`${c}-${i}`}
+            key={`${name}-${i}`}
             className="font-display text-xl font-semibold text-muted-foreground/80 transition-colors hover:text-gold"
           >
-            {c}
+            {name}
           </li>
         ))}
       </motion.ul>

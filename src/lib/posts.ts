@@ -14,6 +14,8 @@ export type Post = {
   /** Parsed 11-char YouTube id, or "" when no video. */
   videoId: string;
   createdAt: number;
+  /** Pinned as the featured post on the home page. Only one post should be featured at a time. */
+  featured: boolean;
 };
 
 export type PostDraft = {

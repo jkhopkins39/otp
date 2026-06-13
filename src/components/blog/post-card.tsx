@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { CalendarDays, Trash2, ChevronDown } from "lucide-react";
+import { CalendarDays, Trash2, ChevronDown, Star } from "lucide-react";
 import type { Post } from "@/lib/posts";
 import { formatDate } from "@/lib/utils";
 import { YouTubeEmbed } from "./youtube-embed";
@@ -11,10 +11,11 @@ import { riseItem } from "@/components/ui/motion";
 export function PostCard({
   post,
   onDelete,
+  onToggleFeatured,
 }: {
   post: Post;
-  /** When provided, an admin delete button is shown. */
   onDelete?: (id: string) => void;
+  onToggleFeatured?: (id: string) => void;
 }) {
   const reduce = useReducedMotion();
   const [expanded, setExpanded] = useState(false);
@@ -32,6 +33,12 @@ export function PostCard({
       variants={reduce ? undefined : riseItem}
       className="group relative overflow-hidden rounded-2xl border border-border surface-card shadow-soft transition-shadow hover:shadow-lift"
     >
+      {post.featured && (
+        <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-gold/15 px-2 py-0.5 text-xs font-semibold text-gold-strong ring-1 ring-gold/30">
+          <Star className="h-3 w-3 fill-gold-strong" />
+          Featured
+        </div>
+      )}
       <div
         className="absolute inset-x-0 top-0 h-0.5 bg-brand-gradient opacity-60"
         aria-hidden
@@ -47,16 +54,36 @@ export function PostCard({
               {post.title}
             </h3>
           </div>
-          {onDelete ? (
-            <button
-              type="button"
-              onClick={() => onDelete(post.id)}
-              aria-label={`Delete post: ${post.title}`}
-              className="shrink-0 rounded-full border border-border p-2 text-muted-foreground opacity-0 transition-all hover:border-red-400/50 hover:text-red-500 focus-visible:opacity-100 group-hover:opacity-100"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          ) : null}
+
+          {(onDelete || onToggleFeatured) && (
+            <div className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+              {onToggleFeatured && (
+                <button
+                  type="button"
+                  onClick={() => onToggleFeatured(post.id)}
+                  aria-label={post.featured ? "Remove featured" : `Feature this post on the homepage`}
+                  title={post.featured ? "Remove featured" : "Set as homepage featured post"}
+                  className={`rounded-full border p-2 transition-all ${
+                    post.featured
+                      ? "border-gold/50 text-gold-strong"
+                      : "border-border text-muted-foreground hover:border-gold/50 hover:text-gold-strong"
+                  }`}
+                >
+                  <Star className={`h-4 w-4 ${post.featured ? "fill-gold-strong" : ""}`} />
+                </button>
+              )}
+              {onDelete && (
+                <button
+                  type="button"
+                  onClick={() => onDelete(post.id)}
+                  aria-label={`Delete post: ${post.title}`}
+                  className="rounded-full border border-border p-2 text-muted-foreground transition-all hover:border-red-400/50 hover:text-red-500"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {post.videoId ? (
