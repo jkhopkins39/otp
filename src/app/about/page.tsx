@@ -46,12 +46,11 @@ export default async function AboutPage() {
               <div className="relative flex h-40 w-40 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-gold-soft/40 via-gold/30 to-orange/30">
                 <div className="grain" aria-hidden />
                 {member.pfp_url ? (
-                  <Image
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
                     src={member.pfp_url}
                     alt={member.name}
-                    fill
-                    className="object-cover"
-                    sizes="160px"
+                    className="absolute inset-0 h-full w-full object-cover"
                   />
                 ) : (
                   <span className="font-display text-5xl font-extrabold text-gold-ink/70">
