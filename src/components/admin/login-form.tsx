@@ -6,6 +6,11 @@ import { login, type LoginState } from "@/app/admin/actions";
 
 const initialState: LoginState = {};
 
+const inputBase =
+  "w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground " +
+  "placeholder:text-muted-foreground/70 transition-colors focus-visible:outline-none " +
+  "focus-visible:ring-2 focus-visible:ring-ring";
+
 export function LoginForm() {
   const [state, formAction, pending] = useActionState(login, initialState);
 
@@ -21,9 +26,25 @@ export function LoginForm() {
         <div>
           <h1 className="font-display text-xl font-bold">Admin sign in</h1>
           <p className="text-sm text-muted-foreground">
-            Enter the admin password to manage the blog.
+            Sign in with your Supabase admin account.
           </p>
         </div>
+      </div>
+
+      <div>
+        <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
+          Email
+        </label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          required
+          autoFocus
+          className={inputBase}
+          placeholder="admin@example.com"
+        />
       </div>
 
       <div>
@@ -36,8 +57,7 @@ export function LoginForm() {
           type="password"
           autoComplete="current-password"
           required
-          autoFocus
-          className="w-full rounded-xl border border-border bg-background px-4 py-3 text-foreground placeholder:text-muted-foreground/70 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className={inputBase}
         />
       </div>
 

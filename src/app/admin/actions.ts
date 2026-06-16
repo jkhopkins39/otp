@@ -2,12 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import {
-  createSession,
-  destroySession,
-  isAuthed,
-  verifyPassword,
-} from "@/lib/auth";
+import { isAuthed } from "@/lib/auth";
+import { getAuthClient } from "@/lib/supabase-auth";
 import { insertPost, deletePost, setFeaturedPost } from "@/lib/posts-store";
 import {
   validateDraft,
@@ -36,25 +32,24 @@ export async function login(
   _prev: LoginState,
   formData: FormData,
 ): Promise<LoginState> {
+  const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
 
-  if (!process.env.ADMIN_PASSWORD || !process.env.SESSION_SECRET) {
-    return {
-      error:
-        "Admin login isn't configured. Set ADMIN_PASSWORD and SESSION_SECRET.",
-    };
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_PUBLISHABLE_KEY) {
+    return { error: "Supabase is not configured." };
   }
 
-  if (!verifyPassword(password)) {
-    return { error: "Incorrect password." };
-  }
+  const supabase = await getAuthClient();
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-  await createSession();
+  if (error) return { error: "Invalid email or password." };
+
   redirect("/admin");
 }
 
 export async function logout(): Promise<void> {
-  await destroySession();
+  const supabase = await getAuthClient();
+  await supabase.auth.signOut();
   redirect("/admin/login");
 }
 
