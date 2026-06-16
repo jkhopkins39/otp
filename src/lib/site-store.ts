@@ -183,6 +183,26 @@ export async function deleteTeamMember(id: string): Promise<void> {
   if (error) throw new Error(`deleteTeamMember: ${error.message}`);
 }
 
+export async function updateTeamMember(
+  id: string,
+  input: { name: string; role: string; pfp_url: string; bio: string },
+): Promise<void> {
+  const sb = getSupabase();
+  if (!sb) throw notConfiguredError("updateTeamMember");
+  const { error } = await sb.from("team_members").update(input).eq("id", id);
+  if (error) throw new Error(`updateTeamMember: ${error.message}`);
+}
+
+export async function reorderTeamMembers(orderedIds: string[]): Promise<void> {
+  const sb = getSupabase();
+  if (!sb) throw notConfiguredError("reorderTeamMembers");
+  await Promise.all(
+    orderedIds.map((id, i) =>
+      sb.from("team_members").update({ display_order: i }).eq("id", id),
+    ),
+  );
+}
+
 // ── Venues ───────────────────────────────────────────────────────
 
 export async function listVenues(): Promise<DbVenue[]> {

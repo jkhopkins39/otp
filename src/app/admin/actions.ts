@@ -14,6 +14,8 @@ import { parseYouTubeId } from "@/lib/youtube";
 import {
   insertTeamMember,
   deleteTeamMember,
+  updateTeamMember,
+  reorderTeamMembers,
   insertVenue,
   deleteVenue,
   insertJob,
@@ -135,6 +137,39 @@ export async function createTeamMemberAction(input: {
 export async function deleteTeamMemberAction(id: string): Promise<{ ok: boolean }> {
   if (!(await isAuthed())) return { ok: false };
   await deleteTeamMember(id);
+  revalidatePath("/about");
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+export async function updateTeamMemberAction(
+  id: string,
+  input: { name: string; role: string; pfp_url: string; bio: string },
+): Promise<TeamMemberResult> {
+  if (!(await isAuthed())) return { ok: false, error: "Not authenticated." };
+  if (!input.name.trim()) return { ok: false, error: "Name is required." };
+  if (!input.role.trim()) return { ok: false, error: "Role is required." };
+
+  try {
+    await updateTeamMember(id, input);
+  } catch (e) {
+    return { ok: false, error: String(e) };
+  }
+
+  revalidatePath("/about");
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+export async function reorderTeamMembersAction(orderedIds: string[]): Promise<{ ok: boolean }> {
+  if (!(await isAuthed())) return { ok: false };
+
+  try {
+    await reorderTeamMembers(orderedIds);
+  } catch {
+    return { ok: false };
+  }
+
   revalidatePath("/about");
   revalidatePath("/admin");
   return { ok: true };
