@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { Section, SectionHeading } from "@/components/ui/section";
 import { PageHeader } from "@/components/ui/page-header";
 import { site, values, stats } from "@/lib/content";
