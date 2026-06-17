@@ -2,8 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   env: {
-    SUPABASE_URL: process.env.SUPABASE_URL,
-    SUPABASE_PUBLISHABLE_KEY: process.env.SUPABASE_PUBLISHABLE_KEY,
+    VITE_SUPABASE_URL: process.env.VITE_SUPABASE_URL,
+    VITE_SUPABASE_PUBLISHABLE_KEY: process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
   },
   images: {
     remotePatterns: [

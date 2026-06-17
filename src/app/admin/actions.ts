@@ -37,7 +37,7 @@ export async function login(
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
 
-  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_PUBLISHABLE_KEY) {
+  if (!process.env.VITE_SUPABASE_URL || !process.env.VITE_SUPABASE_PUBLISHABLE_KEY) {
     return { error: "Supabase is not configured." };
   }
 

@@ -10,7 +10,7 @@ const g = globalThis as unknown as { __supabase?: SupabaseClient<any, any, any> 
  * so the app can fall back to seed data in local dev.
  */
 export function getSupabase(): SupabaseClient | null {
-  const url = process.env.SUPABASE_URL;
+  const url = process.env.VITE_SUPABASE_URL;
   const key = process.env.SUPABASE_SECRET_KEY;
   if (!url || !key) return null;
   if (!g.__supabase) {

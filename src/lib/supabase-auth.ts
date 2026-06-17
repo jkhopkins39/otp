@@ -11,8 +11,8 @@ export async function getAuthClient() {
   const cookieStore = await cookies();
 
   return createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_PUBLISHABLE_KEY!,
+    process.env.VITE_SUPABASE_URL!,
+    process.env.VITE_SUPABASE_PUBLISHABLE_KEY!,
     {
       cookies: {
         getAll() {
