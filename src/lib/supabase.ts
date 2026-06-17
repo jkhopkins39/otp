@@ -2,7 +2,7 @@ import "server-only";
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const g = globalThis as unknown as { __supabase?: SupabaseClient };
+const g = globalThis as unknown as { __supabase?: SupabaseClient<any, any, any> }; // eslint-disable-line
 
 /**
  * Returns a Supabase client using the service-role key (server-side only).
