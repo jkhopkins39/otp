@@ -74,7 +74,7 @@ export async function insertPost(data: {
   const sb = getSupabase();
   if (!sb)
     throw new Error(
-      "Database not configured. Add SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to your Vercel project settings.",
+      "Database not configured. Add SUPABASE_URL and SUPABASE_SECRET_KEY to your Vercel project settings.",
     );
 
   const post: Post = {
@@ -103,7 +103,7 @@ export async function deletePost(id: string): Promise<void> {
   const sb = getSupabase();
   if (!sb)
     throw new Error(
-      "Database not configured. Add SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to your Vercel project settings.",
+      "Database not configured. Add SUPABASE_URL and SUPABASE_SECRET_KEY to your Vercel project settings.",
     );
 
   const { error } = await sb.from("posts").delete().eq("id", id);

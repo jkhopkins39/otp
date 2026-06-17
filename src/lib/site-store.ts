@@ -134,7 +134,7 @@ const SEED_JOBS: DbJob[] = [
 
 function notConfiguredError(op: string): Error {
   return new Error(
-    `${op}: Supabase not configured. Add SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to your environment variables.`,
+    `${op}: Supabase not configured. Add SUPABASE_URL and SUPABASE_SECRET_KEY to your environment variables.`,
   );
 }
 
