@@ -28,27 +28,6 @@ import {
 
 // ── Auth ─────────────────────────────────────────────────────────
 
-export type LoginState = { error?: string };
-
-export async function login(
-  _prev: LoginState,
-  formData: FormData,
-): Promise<LoginState> {
-  const email = String(formData.get("email") ?? "");
-  const password = String(formData.get("password") ?? "");
-
-  if (!process.env.VITE_SUPABASE_URL || !process.env.VITE_SUPABASE_PUBLISHABLE_KEY) {
-    return { error: "Supabase is not configured." };
-  }
-
-  const supabase = await getAuthClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-  if (error) return { error: "Invalid email or password." };
-
-  redirect("/admin");
-}
-
 export async function logout(): Promise<void> {
   const supabase = await getAuthClient();
   await supabase.auth.signOut();
