@@ -2,8 +2,13 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2, Briefcase, Star } from "lucide-react";
-import { createJobAction, deleteJobAction, updateJobFeaturedAction } from "@/app/admin/actions";
+import { Plus, Trash2, Briefcase, Star, Pencil, Check, X } from "lucide-react";
+import {
+  createJobAction,
+  deleteJobAction,
+  updateJobAction,
+  updateJobFeaturedAction,
+} from "@/app/admin/actions";
 import type { DbJob } from "@/lib/site-store";
 import { cn } from "@/lib/utils";
 import { ImageUpload } from "@/components/ui/image-upload";
@@ -22,6 +27,15 @@ export function JobsSection({ jobs }: { jobs: DbJob[] }) {
   const [featured, setFeatured] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
   const [error, setError] = useState("");
+
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editCategory, setEditCategory] = useState("");
+  const [editYear, setEditYear] = useState("");
+  const [editBlurb, setEditBlurb] = useState("");
+  const [editFeatured, setEditFeatured] = useState(false);
+  const [editImageUrl, setEditImageUrl] = useState("");
+  const [editError, setEditError] = useState("");
 
   function handleAdd(e: React.FormEvent) {
     e.preventDefault();
@@ -45,6 +59,35 @@ export function JobsSection({ jobs }: { jobs: DbJob[] }) {
   function handleToggleFeatured(id: string, current: boolean) {
     startTransition(async () => {
       await updateJobFeaturedAction(id, !current);
+      router.refresh();
+    });
+  }
+
+  function startEdit(job: DbJob) {
+    setEditId(job.id);
+    setEditTitle(job.title);
+    setEditCategory(job.category);
+    setEditYear(job.year);
+    setEditBlurb(job.blurb);
+    setEditFeatured(job.featured);
+    setEditImageUrl(job.image_url ?? "");
+    setEditError("");
+  }
+
+  function handleSaveEdit() {
+    if (!editId) return;
+    setEditError("");
+    startTransition(async () => {
+      const res = await updateJobAction(editId, {
+        title: editTitle,
+        category: editCategory,
+        year: editYear,
+        blurb: editBlurb,
+        featured: editFeatured,
+        image_url: editImageUrl,
+      });
+      if (!res.ok) { setEditError(res.error); return; }
+      setEditId(null);
       router.refresh();
     });
   }
@@ -120,49 +163,116 @@ export function JobsSection({ jobs }: { jobs: DbJob[] }) {
         ) : (
           <ul className="flex flex-col gap-3">
             {jobs.map((j) => (
-              <li key={j.id} className="flex items-start gap-3 rounded-2xl border border-border surface-card p-4 shadow-soft">
-                {j.image_url && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={j.image_url} alt={j.title} className="h-14 w-14 shrink-0 rounded-xl object-cover" />
-                )}
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="font-semibold">{j.title}</p>
-                    {j.featured && (
-                      <span className="flex items-center gap-0.5 rounded-full bg-gold/12 px-2 py-0.5 text-xs font-medium text-gold-strong ring-1 ring-gold/20">
-                        <Star className="h-2.5 w-2.5 fill-gold-strong" /> Featured
-                      </span>
-                    )}
+              <li key={j.id} className="rounded-2xl border border-border surface-card p-4 shadow-soft">
+                {editId === j.id ? (
+                  <div className="flex flex-col gap-3">
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">Title</label>
+                      <input className={inputBase} value={editTitle} onChange={e => setEditTitle(e.target.value)} required />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="mb-1 block text-xs font-medium text-muted-foreground">Category</label>
+                        <input className={inputBase} value={editCategory} onChange={e => setEditCategory(e.target.value)} />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs font-medium text-muted-foreground">Year</label>
+                        <input className={inputBase} value={editYear} onChange={e => setEditYear(e.target.value)} />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">Description</label>
+                      <textarea className={cn(inputBase, "resize-y")} value={editBlurb} onChange={e => setEditBlurb(e.target.value)} rows={2} />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">Photo</label>
+                      <ImageUpload value={editImageUrl} onChange={setEditImageUrl} />
+                    </div>
+                    <label className="flex cursor-pointer items-center gap-3">
+                      <input
+                        type="checkbox"
+                        checked={editFeatured}
+                        onChange={e => setEditFeatured(e.target.checked)}
+                        className="h-4 w-4 accent-gold"
+                      />
+                      <span className="text-sm font-medium">Show on home page (featured)</span>
+                    </label>
+                    {editError && <p className="text-sm text-red-500">{editError}</p>}
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleSaveEdit}
+                        disabled={isPending}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-brand-gradient px-4 py-2 text-sm font-medium text-gold-ink shadow-gold transition-all hover:-translate-y-0.5 disabled:opacity-60"
+                      >
+                        <Check className="h-4 w-4" />
+                        {isPending ? "Saving…" : "Save"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditId(null)}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-gold/50 hover:text-foreground"
+                      >
+                        <X className="h-4 w-4" />
+                        Cancel
+                      </button>
+                    </div>
                   </div>
-                  <p className="text-xs text-muted-foreground">{j.category} · {j.year}</p>
-                  {j.blurb && <p className="mt-1 text-xs text-muted-foreground line-clamp-1">{j.blurb}</p>}
-                </div>
-                <div className="flex shrink-0 items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => handleToggleFeatured(j.id, j.featured)}
-                    disabled={isPending}
-                    aria-label={j.featured ? "Unfeature" : "Feature on home page"}
-                    title={j.featured ? "Remove from home page" : "Show on home page"}
-                    className={cn(
-                      "rounded-full border p-2 transition-colors disabled:opacity-50",
-                      j.featured
-                        ? "border-gold/40 bg-gold/10 text-gold-strong hover:border-gold/60"
-                        : "border-border text-muted-foreground hover:border-gold/40 hover:text-gold-strong",
+                ) : (
+                  <div className="flex items-start gap-3">
+                    {j.image_url && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={j.image_url} alt={j.title} className="h-14 w-14 shrink-0 rounded-xl object-cover" />
                     )}
-                  >
-                    <Star className={cn("h-4 w-4", j.featured && "fill-gold-strong")} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(j.id)}
-                    disabled={isPending}
-                    aria-label={`Delete ${j.title}`}
-                    className="rounded-full border border-border p-2 text-muted-foreground transition-colors hover:border-red-400/50 hover:text-red-500 disabled:opacity-50"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold">{j.title}</p>
+                        {j.featured && (
+                          <span className="flex items-center gap-0.5 rounded-full bg-gold/12 px-2 py-0.5 text-xs font-medium text-gold-strong ring-1 ring-gold/20">
+                            <Star className="h-2.5 w-2.5 fill-gold-strong" /> Featured
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground">{j.category} · {j.year}</p>
+                      {j.blurb && <p className="mt-1 text-xs text-muted-foreground line-clamp-1">{j.blurb}</p>}
+                    </div>
+                    <div className="flex shrink-0 items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => startEdit(j)}
+                        disabled={isPending}
+                        aria-label={`Edit ${j.title}`}
+                        className="rounded-full border border-border p-2 text-muted-foreground transition-colors hover:border-gold/50 hover:text-foreground disabled:opacity-50"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleToggleFeatured(j.id, j.featured)}
+                        disabled={isPending}
+                        aria-label={j.featured ? "Unfeature" : "Feature on home page"}
+                        title={j.featured ? "Remove from home page" : "Show on home page"}
+                        className={cn(
+                          "rounded-full border p-2 transition-colors disabled:opacity-50",
+                          j.featured
+                            ? "border-gold/40 bg-gold/10 text-gold-strong hover:border-gold/60"
+                            : "border-border text-muted-foreground hover:border-gold/40 hover:text-gold-strong",
+                        )}
+                      >
+                        <Star className={cn("h-4 w-4", j.featured && "fill-gold-strong")} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(j.id)}
+                        disabled={isPending}
+                        aria-label={`Delete ${j.title}`}
+                        className="rounded-full border border-border p-2 text-muted-foreground transition-colors hover:border-red-400/50 hover:text-red-500 disabled:opacity-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </li>
             ))}
           </ul>

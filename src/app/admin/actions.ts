@@ -240,6 +240,32 @@ export async function updateJobFeaturedAction(
   return { ok: true };
 }
 
+export async function updateJobAction(
+  id: string,
+  input: {
+    title: string;
+    category: string;
+    year: string;
+    blurb: string;
+    featured: boolean;
+    image_url: string;
+  },
+): Promise<JobResult> {
+  if (!(await isAuthed())) return { ok: false, error: "Not authenticated." };
+  if (!input.title.trim()) return { ok: false, error: "Title is required." };
+
+  try {
+    await updateJob(id, input);
+  } catch (e) {
+    return { ok: false, error: String(e) };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/work");
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
 // ── Booked Events ────────────────────────────────────────────────
 
 export type EventResult = { ok: true } | { ok: false; error: string };
