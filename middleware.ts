@@ -8,8 +8,8 @@ export async function middleware(request: NextRequest) {
   if (!pathname.startsWith("/admin")) return NextResponse.next();
   if (pathname === "/admin/auth/callback") return NextResponse.next();
 
-  const supabaseUrl = process.env.VITE_SUPABASE_URL;
-  const supabaseKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
     return NextResponse.redirect("https://hoppytech.com/portal");
