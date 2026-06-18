@@ -6,16 +6,13 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (!pathname.startsWith("/admin")) return NextResponse.next();
-  if (pathname === "/admin/login") return NextResponse.next();
   if (pathname === "/admin/auth/callback") return NextResponse.next();
 
   const supabaseUrl = process.env.VITE_SUPABASE_URL;
   const supabaseKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
   if (!supabaseUrl || !supabaseKey) {
-    const loginUrl = new URL("/admin/login", request.url);
-    loginUrl.searchParams.set("setup", "1");
-    return NextResponse.redirect(loginUrl);
+    return NextResponse.redirect("https://hoppytech.com/portal");
   }
 
   let supabaseResponse = NextResponse.next({ request });
@@ -40,17 +37,13 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    const loginUrl = new URL("/admin/login", request.url);
-    loginUrl.searchParams.set("from", pathname);
-    return NextResponse.redirect(loginUrl);
+    return NextResponse.redirect("https://hoppytech.com/portal");
   }
 
   const tenant = user.app_metadata?.tenant as string | undefined;
   const role = user.app_metadata?.role as string | undefined;
   if (tenant !== "otp" && role !== "agency_owner") {
-    const loginUrl = new URL("/admin/login", request.url);
-    loginUrl.searchParams.set("error", "unauthorised");
-    return NextResponse.redirect(loginUrl);
+    return NextResponse.redirect("https://hoppytech.com/portal");
   }
 
   return supabaseResponse;
