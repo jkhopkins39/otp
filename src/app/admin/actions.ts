@@ -34,7 +34,7 @@ import {
 export async function logout(): Promise<void> {
   const supabase = await getAuthClient();
   await supabase.auth.signOut();
-  redirect("/admin/login");
+  redirect("https://hoppytech.com/portal?logout=1");
 }
 
 // ── Blog Posts ───────────────────────────────────────────────────
