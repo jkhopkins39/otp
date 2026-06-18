@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Section, SectionHeading } from "@/components/ui/section";
+import { Section } from "@/components/ui/section";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProjectCard } from "@/components/work/project-card";
 import { listJobs } from "@/lib/site-store";
@@ -24,8 +24,11 @@ const ACCENTS = [
 export default async function WorkPage() {
   const jobs = await listJobs();
 
-  const featured = jobs.filter((j) => j.featured);
-  const rest = jobs.filter((j) => !j.featured);
+  // Featured pinned at top, then the rest in display_order
+  const sorted = [
+    ...jobs.filter((j) => j.featured),
+    ...jobs.filter((j) => !j.featured),
+  ];
 
   return (
     <>
@@ -40,15 +43,12 @@ export default async function WorkPage() {
         description="AV production, live streaming, sound, lighting, and event tech — here's what we've been working on."
       />
 
-      {featured.length > 0 && (
-        <Section className="pt-6 sm:pt-8 lg:pt-10">
-          <SectionHeading
-            compact
-            eyebrow="Featured"
-            title="Recent highlights."
-          />
-          <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {featured.map((job, i) => (
+      <Section className="pt-6 pb-16 sm:pt-8 sm:pb-20 lg:pt-10">
+        {sorted.length === 0 ? (
+          <p className="text-center text-muted-foreground">Projects coming soon.</p>
+        ) : (
+          <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {sorted.map((job, i) => (
               <li key={job.id}>
                 <ProjectCard
                   project={{
@@ -57,49 +57,15 @@ export default async function WorkPage() {
                     year: job.year,
                     blurb: job.blurb,
                     accent: ACCENTS[i % ACCENTS.length],
-                    featured: true,
+                    featured: job.featured,
                     image_url: job.image_url || undefined,
                   }}
                 />
               </li>
             ))}
           </ul>
-        </Section>
-      )}
-
-      {rest.length > 0 && (
-        <Section className="py-12 sm:py-14 lg:py-16">
-          {featured.length > 0 && (
-            <SectionHeading
-              compact
-              eyebrow="More work"
-              title="All projects."
-            />
-          )}
-          <ul className={`${featured.length > 0 ? "mt-8" : ""} grid gap-5 sm:grid-cols-2 lg:grid-cols-3`}>
-            {rest.map((job, i) => (
-              <li key={job.id}>
-                <ProjectCard
-                  project={{
-                    title: job.title,
-                    category: job.category,
-                    year: job.year,
-                    blurb: job.blurb,
-                    accent: ACCENTS[(featured.length + i) % ACCENTS.length],
-                    image_url: job.image_url || undefined,
-                  }}
-                />
-              </li>
-            ))}
-          </ul>
-        </Section>
-      )}
-
-      {jobs.length === 0 && (
-        <Section className="pt-6 sm:pt-8 lg:pt-10">
-          <p className="text-center text-muted-foreground">Projects coming soon.</p>
-        </Section>
-      )}
+        )}
+      </Section>
     </>
   );
 }

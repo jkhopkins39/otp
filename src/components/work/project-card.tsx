@@ -1,3 +1,4 @@
+import { Star } from "lucide-react";
 import type { Project } from "@/lib/content";
 
 export function ProjectCard({ project }: { project: Project }) {
@@ -21,6 +22,12 @@ export function ProjectCard({ project }: { project: Project }) {
         <span className="absolute right-4 top-4 rounded-full bg-black/25 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
           {project.year}
         </span>
+        {project.featured && (
+          <span className="absolute bottom-3 right-3 inline-flex items-center gap-1 rounded-full bg-gold/90 px-2.5 py-1 text-xs font-semibold text-gold-ink shadow-gold backdrop-blur">
+            <Star className="h-3 w-3 fill-gold-ink" />
+            Featured
+          </span>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
       </div>
 

@@ -248,6 +248,13 @@ export async function deleteVenue(id: string): Promise<void> {
   if (error) throw new Error(`deleteVenue: ${error.message}`);
 }
 
+export async function updateVenue(id: string, name: string): Promise<void> {
+  const sb = getSupabase();
+  if (!sb) throw notConfiguredError("updateVenue");
+  const { error } = await sb.from("venues").update({ name: name.trim() }).eq("id", id);
+  if (error) throw new Error(`updateVenue: ${error.message}`);
+}
+
 // ── Jobs ─────────────────────────────────────────────────────────
 
 export async function listJobs(): Promise<DbJob[]> {
@@ -345,6 +352,16 @@ export async function deleteBookedEvent(id: string): Promise<void> {
   if (error) throw new Error(`deleteBookedEvent: ${error.message}`);
 }
 
+export async function updateBookedEvent(
+  id: string,
+  input: Partial<Pick<DbBookedEvent, "client" | "event_date" | "venue" | "services" | "notes" | "status">>,
+): Promise<void> {
+  const sb = getSupabase();
+  if (!sb) throw notConfiguredError("updateBookedEvent");
+  const { error } = await sb.from("booked_events").update(input).eq("id", id);
+  if (error) throw new Error(`updateBookedEvent: ${error.message}`);
+}
+
 // ── Testimonials ─────────────────────────────────────────────────
 
 export async function listTestimonials(): Promise<DbTestimonial[]> {
@@ -387,6 +404,16 @@ export async function deleteTestimonial(id: string): Promise<void> {
   if (!sb) throw notConfiguredError("deleteTestimonial");
   const { error } = await sb.from("testimonials").delete().eq("id", id);
   if (error) throw new Error(`deleteTestimonial: ${error.message}`);
+}
+
+export async function updateTestimonial(
+  id: string,
+  input: { quote: string; author_name: string; author_role: string },
+): Promise<void> {
+  const sb = getSupabase();
+  if (!sb) throw notConfiguredError("updateTestimonial");
+  const { error } = await sb.from("testimonials").update(input).eq("id", id);
+  if (error) throw new Error(`updateTestimonial: ${error.message}`);
 }
 
 // ── Contact Submissions ──────────────────────────────────────────

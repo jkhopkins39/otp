@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { isAuthed } from "@/lib/auth";
 import { getAuthClient } from "@/lib/supabase-auth";
-import { insertPost, deletePost, setFeaturedPost } from "@/lib/posts-store";
+import { insertPost, deletePost, setFeaturedPost, updatePost } from "@/lib/posts-store";
 import {
   validateDraft,
   type PostInput,
@@ -18,13 +18,16 @@ import {
   reorderTeamMembers,
   insertVenue,
   deleteVenue,
+  updateVenue,
   insertJob,
   deleteJob,
   updateJob,
   insertBookedEvent,
   deleteBookedEvent,
+  updateBookedEvent,
   insertTestimonial,
   deleteTestimonial,
+  updateTestimonial,
   archiveContactSubmission,
   unarchiveContactSubmission,
 } from "@/lib/site-store";
@@ -321,6 +324,95 @@ export async function unarchiveContactAction(id: string): Promise<{ ok: boolean 
   } catch {
     return { ok: false };
   }
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+export async function convertContactToEventAction(
+  contactId: string,
+  eventData: { client: string; event_date: string; venue: string; services: string; notes: string },
+): Promise<EventResult> {
+  if (!(await isAuthed())) return { ok: false, error: "Not authenticated." };
+  if (!eventData.client.trim()) return { ok: false, error: "Client name is required." };
+  try {
+    await insertBookedEvent({ ...eventData, status: "booked" });
+    await archiveContactSubmission(contactId);
+  } catch (e) {
+    return { ok: false, error: String(e) };
+  }
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+// ── Venue update ─────────────────────────────────────────────────
+
+export async function updateVenueAction(id: string, name: string): Promise<VenueResult> {
+  if (!(await isAuthed())) return { ok: false, error: "Not authenticated." };
+  if (!name.trim()) return { ok: false, error: "Venue name is required." };
+  try {
+    await updateVenue(id, name);
+  } catch (e) {
+    return { ok: false, error: String(e) };
+  }
+  revalidatePath("/");
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+// ── Booked Event update ──────────────────────────────────────────
+
+export async function updateBookedEventAction(
+  id: string,
+  input: { client: string; event_date: string; venue: string; services: string; notes: string; status: string },
+): Promise<EventResult> {
+  if (!(await isAuthed())) return { ok: false, error: "Not authenticated." };
+  if (!input.client.trim()) return { ok: false, error: "Client name is required." };
+  try {
+    await updateBookedEvent(id, input);
+  } catch (e) {
+    return { ok: false, error: String(e) };
+  }
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+// ── Testimonial update ───────────────────────────────────────────
+
+export async function updateTestimonialAction(
+  id: string,
+  input: { quote: string; author_name: string; author_role: string },
+): Promise<TestimonialResult> {
+  if (!(await isAuthed())) return { ok: false, error: "Not authenticated." };
+  if (!input.quote.trim()) return { ok: false, error: "Quote is required." };
+  if (!input.author_name.trim()) return { ok: false, error: "Author name is required." };
+  try {
+    await updateTestimonial(id, input);
+  } catch (e) {
+    return { ok: false, error: String(e) };
+  }
+  revalidatePath("/portfolio");
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+// ── Post update ──────────────────────────────────────────────────
+
+export async function updatePostAction(id: string, input: PostInput): Promise<CreateResult> {
+  if (!(await isAuthed())) return { ok: false, errors: { content: "You must be signed in." } };
+
+  const videoId = parseYouTubeId(input.videoInput ?? "");
+  const errors = validateDraft(
+    { title: input.title, body: input.body, videoId: videoId ?? "" },
+    input.videoInput ?? "",
+    videoId !== null,
+  );
+
+  if (Object.keys(errors).length > 0) return { ok: false, errors };
+
+  await updatePost(id, { title: input.title, body: input.body, videoId: videoId ?? "" });
+
+  revalidatePath("/blog");
+  revalidatePath("/");
   revalidatePath("/admin");
   return { ok: true };
 }

@@ -2,8 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2, MapPin } from "lucide-react";
-import { createVenueAction, deleteVenueAction } from "@/app/admin/actions";
+import { Plus, Trash2, MapPin, Pencil, Check, X } from "lucide-react";
+import { createVenueAction, deleteVenueAction, updateVenueAction } from "@/app/admin/actions";
 import type { DbVenue } from "@/lib/site-store";
 
 const inputBase =
@@ -15,6 +15,10 @@ export function VenuesSection({ venues }: { venues: DbVenue[] }) {
   const [isPending, startTransition] = useTransition();
   const [name, setName] = useState("");
   const [error, setError] = useState("");
+
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editError, setEditError] = useState("");
 
   function handleAdd(e: React.FormEvent) {
     e.preventDefault();
@@ -30,6 +34,23 @@ export function VenuesSection({ venues }: { venues: DbVenue[] }) {
   function handleDelete(id: string) {
     startTransition(async () => {
       await deleteVenueAction(id);
+      router.refresh();
+    });
+  }
+
+  function startEdit(v: DbVenue) {
+    setEditId(v.id);
+    setEditName(v.name);
+    setEditError("");
+  }
+
+  function handleSaveEdit() {
+    if (!editId) return;
+    setEditError("");
+    startTransition(async () => {
+      const res = await updateVenueAction(editId, editName);
+      if (!res.ok) { setEditError(res.error); return; }
+      setEditId(null);
       router.refresh();
     });
   }
@@ -77,16 +98,57 @@ export function VenuesSection({ venues }: { venues: DbVenue[] }) {
           <ul className="flex flex-col gap-2">
             {venues.map((v) => (
               <li key={v.id} className="flex items-center gap-3 rounded-xl border border-border surface-card px-4 py-3 shadow-soft">
-                <span className="flex-1 text-sm font-medium">{v.name}</span>
-                <button
-                  type="button"
-                  onClick={() => handleDelete(v.id)}
-                  disabled={isPending}
-                  aria-label={`Delete ${v.name}`}
-                  className="shrink-0 rounded-full border border-border p-1.5 text-muted-foreground transition-colors hover:border-red-400/50 hover:text-red-500 disabled:opacity-50"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </button>
+                {editId === v.id ? (
+                  <>
+                    <input
+                      className={inputBase + " flex-1"}
+                      value={editName}
+                      onChange={e => setEditName(e.target.value)}
+                      onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); handleSaveEdit(); } if (e.key === "Escape") setEditId(null); }}
+                      autoFocus
+                    />
+                    {editError && <p className="text-xs text-red-500">{editError}</p>}
+                    <button
+                      type="button"
+                      onClick={handleSaveEdit}
+                      disabled={isPending}
+                      aria-label="Save"
+                      className="shrink-0 rounded-full border border-border p-1.5 text-muted-foreground transition-colors hover:border-gold/50 hover:text-foreground disabled:opacity-50"
+                    >
+                      <Check className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditId(null)}
+                      aria-label="Cancel"
+                      className="shrink-0 rounded-full border border-border p-1.5 text-muted-foreground transition-colors hover:border-gold/50 hover:text-foreground"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <span className="flex-1 text-sm font-medium">{v.name}</span>
+                    <button
+                      type="button"
+                      onClick={() => startEdit(v)}
+                      disabled={isPending}
+                      aria-label={`Edit ${v.name}`}
+                      className="shrink-0 rounded-full border border-border p-1.5 text-muted-foreground transition-colors hover:border-gold/50 hover:text-foreground disabled:opacity-50"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(v.id)}
+                      disabled={isPending}
+                      aria-label={`Delete ${v.name}`}
+                      className="shrink-0 rounded-full border border-border p-1.5 text-muted-foreground transition-colors hover:border-red-400/50 hover:text-red-500 disabled:opacity-50"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </>
+                )}
               </li>
             ))}
           </ul>

@@ -1,9 +1,13 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Inbox, Mail, Phone, Archive, ArchiveRestore } from "lucide-react";
-import { archiveContactAction, unarchiveContactAction } from "@/app/admin/actions";
+import { Inbox, Mail, Phone, Archive, ArchiveRestore, CalendarPlus, CheckCircle2 } from "lucide-react";
+import {
+  archiveContactAction,
+  unarchiveContactAction,
+  convertContactToEventAction,
+} from "@/app/admin/actions";
 import type { DbContactSubmission } from "@/lib/site-store";
 
 function formatDate(ts: number) {
@@ -31,13 +35,17 @@ function SubmissionCard({
   showArchived,
   onArchive,
   onUnarchive,
+  onConvert,
   isPending,
+  convertedId,
 }: {
   s: DbContactSubmission;
   showArchived: boolean;
   onArchive: (id: string) => void;
   onUnarchive: (id: string) => void;
+  onConvert: (s: DbContactSubmission) => void;
   isPending: boolean;
+  convertedId: string | null;
 }) {
   return (
     <li className="rounded-2xl border border-border surface-card p-5 shadow-soft">
@@ -62,6 +70,24 @@ function SubmissionCard({
               <Phone className="h-3.5 w-3.5" />
               {s.phone}
             </a>
+          )}
+          {!showArchived && (
+            convertedId === s.id ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-green-400/40 bg-green-500/10 px-3 py-1.5 text-xs font-medium text-green-600">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Converted to Event
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => onConvert(s)}
+                disabled={isPending}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-gold/50 hover:text-gold-strong disabled:opacity-50"
+              >
+                <CalendarPlus className="h-3.5 w-3.5" />
+                Convert to Event
+              </button>
+            )
           )}
           {showArchived ? (
             <button
@@ -120,6 +146,7 @@ export function ContactsSection({
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [convertedId, setConvertedId] = useState<string | null>(null);
 
   function handleArchive(id: string) {
     startTransition(async () => {
@@ -132,6 +159,24 @@ export function ContactsSection({
     startTransition(async () => {
       await unarchiveContactAction(id);
       router.refresh();
+    });
+  }
+
+  function handleConvert(s: DbContactSubmission) {
+    startTransition(async () => {
+      const res = await convertContactToEventAction(s.id, {
+        client: s.full_name,
+        event_date: s.event_date,
+        venue: s.venue,
+        services: s.services,
+        notes: s.additional_details,
+      });
+      if (res.ok) {
+        setConvertedId(s.id);
+        setTimeout(() => {
+          router.refresh();
+        }, 1200);
+      }
     });
   }
 
@@ -184,7 +229,9 @@ export function ContactsSection({
               showArchived={showArchived}
               onArchive={handleArchive}
               onUnarchive={handleUnarchive}
+              onConvert={handleConvert}
               isPending={isPending}
+              convertedId={convertedId}
             />
           ))}
         </ul>

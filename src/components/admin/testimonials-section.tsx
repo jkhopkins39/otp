@@ -2,8 +2,12 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2, Quote } from "lucide-react";
-import { createTestimonialAction, deleteTestimonialAction } from "@/app/admin/actions";
+import { Plus, Trash2, Quote, Pencil, Check, X } from "lucide-react";
+import {
+  createTestimonialAction,
+  deleteTestimonialAction,
+  updateTestimonialAction,
+} from "@/app/admin/actions";
 import type { DbTestimonial } from "@/lib/site-store";
 import { cn } from "@/lib/utils";
 
@@ -14,10 +18,19 @@ const inputBase =
 export function TestimonialsSection({ testimonials }: { testimonials: DbTestimonial[] }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+
+  // Add form
   const [quote, setQuote] = useState("");
   const [authorName, setAuthorName] = useState("");
   const [authorRole, setAuthorRole] = useState("");
   const [error, setError] = useState("");
+
+  // Inline edit
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editQuote, setEditQuote] = useState("");
+  const [editAuthorName, setEditAuthorName] = useState("");
+  const [editAuthorRole, setEditAuthorRole] = useState("");
+  const [editError, setEditError] = useState("");
 
   function handleAdd(e: React.FormEvent) {
     e.preventDefault();
@@ -33,6 +46,29 @@ export function TestimonialsSection({ testimonials }: { testimonials: DbTestimon
   function handleDelete(id: string) {
     startTransition(async () => {
       await deleteTestimonialAction(id);
+      router.refresh();
+    });
+  }
+
+  function startEdit(t: DbTestimonial) {
+    setEditId(t.id);
+    setEditQuote(t.quote);
+    setEditAuthorName(t.author_name);
+    setEditAuthorRole(t.author_role);
+    setEditError("");
+  }
+
+  function handleSaveEdit() {
+    if (!editId) return;
+    setEditError("");
+    startTransition(async () => {
+      const res = await updateTestimonialAction(editId, {
+        quote: editQuote,
+        author_name: editAuthorName,
+        author_role: editAuthorRole,
+      });
+      if (!res.ok) { setEditError(res.error); return; }
+      setEditId(null);
       router.refresh();
     });
   }
@@ -86,21 +122,73 @@ export function TestimonialsSection({ testimonials }: { testimonials: DbTestimon
         ) : (
           <ul className="flex flex-col gap-4">
             {testimonials.map((t) => (
-              <li key={t.id} className="flex items-start gap-3 rounded-2xl border border-border surface-card p-4 shadow-soft">
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm leading-relaxed text-foreground">&ldquo;{t.quote}&rdquo;</p>
-                  <p className="mt-2 text-xs font-semibold text-gold-strong">{t.author_name}</p>
-                  {t.author_role && <p className="text-xs text-muted-foreground">{t.author_role}</p>}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleDelete(t.id)}
-                  disabled={isPending}
-                  aria-label="Delete testimonial"
-                  className="shrink-0 rounded-full border border-border p-2 text-muted-foreground transition-colors hover:border-red-400/50 hover:text-red-500 disabled:opacity-50"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+              <li key={t.id} className="rounded-2xl border border-border surface-card p-4 shadow-soft">
+                {editId === t.id ? (
+                  <div className="flex flex-col gap-3">
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">Quote</label>
+                      <textarea className={cn(inputBase, "resize-y")} value={editQuote} onChange={e => setEditQuote(e.target.value)} rows={4} required />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="mb-1 block text-xs font-medium text-muted-foreground">Author name</label>
+                        <input className={inputBase} value={editAuthorName} onChange={e => setEditAuthorName(e.target.value)} required />
+                      </div>
+                      <div>
+                        <label className="mb-1 block text-xs font-medium text-muted-foreground">Role / Organization</label>
+                        <input className={inputBase} value={editAuthorRole} onChange={e => setEditAuthorRole(e.target.value)} />
+                      </div>
+                    </div>
+                    {editError && <p className="text-sm text-red-500">{editError}</p>}
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={handleSaveEdit}
+                        disabled={isPending}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-brand-gradient px-4 py-2 text-sm font-medium text-gold-ink shadow-gold transition-all hover:-translate-y-0.5 disabled:opacity-60"
+                      >
+                        <Check className="h-4 w-4" />
+                        {isPending ? "Saving…" : "Save"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditId(null)}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-gold/50 hover:text-foreground"
+                      >
+                        <X className="h-4 w-4" />
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-start gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm leading-relaxed text-foreground">&ldquo;{t.quote}&rdquo;</p>
+                      <p className="mt-2 text-xs font-semibold text-gold-strong">{t.author_name}</p>
+                      {t.author_role && <p className="text-xs text-muted-foreground">{t.author_role}</p>}
+                    </div>
+                    <div className="flex shrink-0 items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => startEdit(t)}
+                        disabled={isPending}
+                        aria-label="Edit testimonial"
+                        className="rounded-full border border-border p-2 text-muted-foreground transition-colors hover:border-gold/50 hover:text-foreground disabled:opacity-50"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(t.id)}
+                        disabled={isPending}
+                        aria-label="Delete testimonial"
+                        className="rounded-full border border-border p-2 text-muted-foreground transition-colors hover:border-red-400/50 hover:text-red-500 disabled:opacity-50"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </li>
             ))}
           </ul>
