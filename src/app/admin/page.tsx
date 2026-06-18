@@ -36,12 +36,13 @@ type Tab = (typeof VALID_TABS)[number];
 export default async function AdminPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; archived?: string }>;
 }) {
   if (!(await isAuthed())) redirect("/admin/login");
 
   const params = await searchParams;
   const tab = (VALID_TABS.includes(params.tab as Tab) ? params.tab : "blog") as Tab;
+  const showArchived = params.archived === "1";
 
   // Fetch only what's needed for the active tab
   const [posts, team, venues, jobs, events, testimonials, contacts] =
@@ -52,7 +53,7 @@ export default async function AdminPage({
       tab === "jobs" ? listJobs() : Promise.resolve([]),
       tab === "events" ? listBookedEvents() : Promise.resolve([]),
       tab === "testimonials" ? listTestimonials() : Promise.resolve([]),
-      tab === "contacts" ? listContactSubmissions() : Promise.resolve([]),
+      tab === "contacts" ? listContactSubmissions(params.archived === "1") : Promise.resolve([]),
     ]);
 
   return (
@@ -99,7 +100,7 @@ export default async function AdminPage({
       {tab === "jobs" && <JobsSection jobs={jobs} />}
       {tab === "events" && <EventsSection events={events} />}
       {tab === "testimonials" && <TestimonialsSection testimonials={testimonials} />}
-      {tab === "contacts" && <ContactsSection submissions={contacts} />}
+      {tab === "contacts" && <ContactsSection submissions={contacts} showArchived={showArchived} />}
     </section>
   );
 }

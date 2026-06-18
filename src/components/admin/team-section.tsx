@@ -26,6 +26,7 @@ export function TeamSection({ members }: { members: DbTeamMember[] }) {
   const [role, setRole] = useState("");
   const [pfpUrl, setPfpUrl] = useState("");
   const [bio, setBio] = useState("");
+  const [email, setEmail] = useState("");
   const [addError, setAddError] = useState("");
 
   // Ordered list — mirrors server data, updated optimistically for reorder
@@ -38,15 +39,16 @@ export function TeamSection({ members }: { members: DbTeamMember[] }) {
   const [editRole, setEditRole] = useState("");
   const [editPfp, setEditPfp] = useState("");
   const [editBio, setEditBio] = useState("");
+  const [editEmail, setEditEmail] = useState("");
   const [editError, setEditError] = useState("");
 
   function handleAdd(e: React.FormEvent) {
     e.preventDefault();
     setAddError("");
     startTransition(async () => {
-      const res = await createTeamMemberAction({ name, role, pfp_url: pfpUrl, bio });
+      const res = await createTeamMemberAction({ name, role, pfp_url: pfpUrl, bio, email });
       if (!res.ok) { setAddError(res.error); return; }
-      setName(""); setRole(""); setPfpUrl(""); setBio("");
+      setName(""); setRole(""); setPfpUrl(""); setBio(""); setEmail("");
       router.refresh();
     });
   }
@@ -57,6 +59,7 @@ export function TeamSection({ members }: { members: DbTeamMember[] }) {
     setEditRole(m.role);
     setEditPfp(m.pfp_url);
     setEditBio(m.bio);
+    setEditEmail(m.email);
     setEditError("");
   }
 
@@ -65,7 +68,7 @@ export function TeamSection({ members }: { members: DbTeamMember[] }) {
     setEditError("");
     startTransition(async () => {
       const res = await updateTeamMemberAction(editId, {
-        name: editName, role: editRole, pfp_url: editPfp, bio: editBio,
+        name: editName, role: editRole, pfp_url: editPfp, bio: editBio, email: editEmail,
       });
       if (!res.ok) { setEditError(res.error); return; }
       setEditId(null);
@@ -122,6 +125,10 @@ export function TeamSection({ members }: { members: DbTeamMember[] }) {
           <label className="mb-1.5 block text-sm font-medium">Bio <span className="text-xs font-normal text-muted-foreground">(optional)</span></label>
           <textarea className={cn(inputBase, "resize-y")} value={bio} onChange={e => setBio(e.target.value)} rows={3} placeholder="Short bio…" />
         </div>
+        <div>
+          <label className="mb-1.5 block text-sm font-medium">Email <span className="text-xs font-normal text-muted-foreground">(optional — shown on About page)</span></label>
+          <input className={inputBase} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="austin@example.com" />
+        </div>
 
         {addError && <p className="text-sm text-red-500">{addError}</p>}
 
@@ -168,6 +175,10 @@ export function TeamSection({ members }: { members: DbTeamMember[] }) {
                     <div>
                       <label className="mb-1.5 block text-sm font-medium">Bio</label>
                       <textarea className={cn(inputBase, "resize-y")} value={editBio} onChange={e => setEditBio(e.target.value)} rows={3} />
+                    </div>
+                    <div>
+                      <label className="mb-1.5 block text-sm font-medium">Email <span className="text-xs font-normal text-muted-foreground">(shown on About page)</span></label>
+                      <input className={inputBase} type="email" value={editEmail} onChange={e => setEditEmail(e.target.value)} placeholder="austin@example.com" />
                     </div>
                     {editError && <p className="text-sm text-red-500">{editError}</p>}
                     <div className="flex items-center gap-2">

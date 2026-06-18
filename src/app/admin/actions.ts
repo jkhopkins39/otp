@@ -20,10 +20,13 @@ import {
   deleteVenue,
   insertJob,
   deleteJob,
+  updateJob,
   insertBookedEvent,
   deleteBookedEvent,
   insertTestimonial,
   deleteTestimonial,
+  archiveContactSubmission,
+  unarchiveContactSubmission,
 } from "@/lib/site-store";
 
 // ── Auth ─────────────────────────────────────────────────────────
@@ -97,6 +100,7 @@ export async function createTeamMemberAction(input: {
   role: string;
   pfp_url: string;
   bio: string;
+  email: string;
 }): Promise<TeamMemberResult> {
   if (!(await isAuthed())) return { ok: false, error: "Not authenticated." };
   if (!input.name.trim()) return { ok: false, error: "Name is required." };
@@ -123,7 +127,7 @@ export async function deleteTeamMemberAction(id: string): Promise<{ ok: boolean 
 
 export async function updateTeamMemberAction(
   id: string,
-  input: { name: string; role: string; pfp_url: string; bio: string },
+  input: { name: string; role: string; pfp_url: string; bio: string; email: string },
 ): Promise<TeamMemberResult> {
   if (!(await isAuthed())) return { ok: false, error: "Not authenticated." };
   if (!input.name.trim()) return { ok: false, error: "Name is required." };
@@ -191,6 +195,7 @@ export async function createJobAction(input: {
   year: string;
   blurb: string;
   featured: boolean;
+  image_url: string;
 }): Promise<JobResult> {
   if (!(await isAuthed())) return { ok: false, error: "Not authenticated." };
   if (!input.title.trim()) return { ok: false, error: "Title is required." };
@@ -202,7 +207,7 @@ export async function createJobAction(input: {
   }
 
   revalidatePath("/");
-  revalidatePath("/portfolio");
+  revalidatePath("/work");
   revalidatePath("/admin");
   return { ok: true };
 }
@@ -211,7 +216,23 @@ export async function deleteJobAction(id: string): Promise<{ ok: boolean }> {
   if (!(await isAuthed())) return { ok: false };
   await deleteJob(id);
   revalidatePath("/");
-  revalidatePath("/portfolio");
+  revalidatePath("/work");
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+export async function updateJobFeaturedAction(
+  id: string,
+  featured: boolean,
+): Promise<JobResult> {
+  if (!(await isAuthed())) return { ok: false, error: "Not authenticated." };
+  try {
+    await updateJob(id, { featured });
+  } catch (e) {
+    return { ok: false, error: String(e) };
+  }
+  revalidatePath("/");
+  revalidatePath("/work");
   revalidatePath("/admin");
   return { ok: true };
 }
@@ -276,6 +297,30 @@ export async function deleteTestimonialAction(id: string): Promise<{ ok: boolean
   if (!(await isAuthed())) return { ok: false };
   await deleteTestimonial(id);
   revalidatePath("/portfolio");
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+// ── Contact Submissions ──────────────────────────────────────────
+
+export async function archiveContactAction(id: string): Promise<{ ok: boolean }> {
+  if (!(await isAuthed())) return { ok: false };
+  try {
+    await archiveContactSubmission(id);
+  } catch {
+    return { ok: false };
+  }
+  revalidatePath("/admin");
+  return { ok: true };
+}
+
+export async function unarchiveContactAction(id: string): Promise<{ ok: boolean }> {
+  if (!(await isAuthed())) return { ok: false };
+  try {
+    await unarchiveContactSubmission(id);
+  } catch {
+    return { ok: false };
+  }
   revalidatePath("/admin");
   return { ok: true };
 }

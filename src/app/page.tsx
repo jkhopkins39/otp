@@ -88,8 +88,8 @@ export default async function HomePage() {
                 </>
               }
             />
-            <Button href="/portfolio" variant="outline" size="md" className="shrink-0">
-              See all reviews
+            <Button href="/work" variant="outline" size="md" className="shrink-0">
+              See all work
               <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
@@ -105,6 +105,7 @@ export default async function HomePage() {
                     blurb: job.blurb,
                     accent: "from-amber-400 via-orange-500 to-rose-500",
                     featured: job.featured,
+                    image_url: job.image_url || undefined,
                   }}
                 />
               </li>

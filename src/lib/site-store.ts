@@ -10,6 +10,7 @@ export type DbTeamMember = {
   role: string;
   pfp_url: string;
   bio: string;
+  email: string;
   display_order: number;
 };
 
@@ -26,6 +27,7 @@ export type DbJob = {
   year: string;
   blurb: string;
   featured: boolean;
+  image_url: string;
   display_order: number;
 };
 
@@ -63,6 +65,7 @@ export type DbContactSubmission = {
   budget_range: string;
   referral_source: string;
   additional_details: string;
+  archived: boolean;
   created_at: number;
 };
 
@@ -86,6 +89,7 @@ const SEED_TEAM: DbTeamMember[] = [
     role: "Founder & Lead Technician",
     pfp_url: "",
     bio: "Technical producer with hands-on experience in live streaming, sound, lighting, and AV installation. Based in West Georgia, focused on getting your event right from setup to teardown.",
+    email: "",
     display_order: 0,
   },
 ];
@@ -122,12 +126,12 @@ const SEED_TESTIMONIALS: DbTestimonial[] = [
 ];
 
 const SEED_JOBS: DbJob[] = [
-  { id: "1", title: "Corporate Summit Live Stream", category: "Live Stream", year: "2025", blurb: "Three-camera live broadcast of a two-day conference, streamed to remote attendees.", featured: true, display_order: 0 },
-  { id: "2", title: "Regional Sports Broadcast", category: "Live Stream", year: "2025", blurb: "Multi-camera streaming setup for a regional tournament with live scoreboard integration.", featured: true, display_order: 1 },
-  { id: "3", title: "Sanctuary AV Upgrade", category: "AV Install", year: "2025", blurb: "Full sound, lighting, and streaming system installed for a growing church in Georgia.", featured: true, display_order: 2 },
-  { id: "4", title: "Spring Formal", category: "Sound & Lighting", year: "2024", blurb: "Stage lighting and sound for a school dance, built for the room and run all night.", featured: false, display_order: 3 },
-  { id: "5", title: "Community Concert", category: "Sound & Lighting", year: "2024", blurb: "Front-of-house mix and stage lighting for an outdoor community concert.", featured: false, display_order: 4 },
-  { id: "6", title: "Event Recap Film", category: "Video", year: "2023", blurb: "Highlight recap video cut from a full weekend conference.", featured: false, display_order: 5 },
+  { id: "1", title: "Corporate Summit Live Stream", category: "Live Stream", year: "2025", blurb: "Three-camera live broadcast of a two-day conference, streamed to remote attendees.", featured: true, image_url: "", display_order: 0 },
+  { id: "2", title: "Regional Sports Broadcast", category: "Live Stream", year: "2025", blurb: "Multi-camera streaming setup for a regional tournament with live scoreboard integration.", featured: true, image_url: "", display_order: 1 },
+  { id: "3", title: "Sanctuary AV Upgrade", category: "AV Install", year: "2025", blurb: "Full sound, lighting, and streaming system installed for a growing church in Georgia.", featured: true, image_url: "", display_order: 2 },
+  { id: "4", title: "Spring Formal", category: "Sound & Lighting", year: "2024", blurb: "Stage lighting and sound for a school dance, built for the room and run all night.", featured: false, image_url: "", display_order: 3 },
+  { id: "5", title: "Community Concert", category: "Sound & Lighting", year: "2024", blurb: "Front-of-house mix and stage lighting for an outdoor community concert.", featured: false, image_url: "", display_order: 4 },
+  { id: "6", title: "Event Recap Film", category: "Video", year: "2023", blurb: "Highlight recap video cut from a full weekend conference.", featured: false, image_url: "", display_order: 5 },
 ];
 
 // ── Helper ───────────────────────────────────────────────────────
@@ -152,6 +156,7 @@ export async function insertTeamMember(input: {
   role: string;
   pfp_url: string;
   bio: string;
+  email: string;
 }): Promise<DbTeamMember> {
   const sb = getSupabase();
   if (!sb) throw notConfiguredError("insertTeamMember");
@@ -185,7 +190,7 @@ export async function deleteTeamMember(id: string): Promise<void> {
 
 export async function updateTeamMember(
   id: string,
-  input: { name: string; role: string; pfp_url: string; bio: string },
+  input: { name: string; role: string; pfp_url: string; bio: string; email: string },
 ): Promise<void> {
   const sb = getSupabase();
   if (!sb) throw notConfiguredError("updateTeamMember");
@@ -258,6 +263,7 @@ export async function insertJob(input: {
   year: string;
   blurb: string;
   featured: boolean;
+  image_url: string;
 }): Promise<DbJob> {
   const sb = getSupabase();
   if (!sb) throw notConfiguredError("insertJob");
@@ -287,6 +293,16 @@ export async function deleteJob(id: string): Promise<void> {
   if (!sb) throw notConfiguredError("deleteJob");
   const { error } = await sb.from("jobs").delete().eq("id", id);
   if (error) throw new Error(`deleteJob: ${error.message}`);
+}
+
+export async function updateJob(
+  id: string,
+  input: Partial<Pick<DbJob, "title" | "category" | "year" | "blurb" | "featured" | "image_url">>,
+): Promise<void> {
+  const sb = getSupabase();
+  if (!sb) throw notConfiguredError("updateJob");
+  const { error } = await sb.from("jobs").update(input).eq("id", id);
+  if (error) throw new Error(`updateJob: ${error.message}`);
 }
 
 // ── Booked Events ────────────────────────────────────────────────
@@ -375,18 +391,42 @@ export async function deleteTestimonial(id: string): Promise<void> {
 
 // ── Contact Submissions ──────────────────────────────────────────
 
-export async function listContactSubmissions(): Promise<DbContactSubmission[]> {
+export async function listContactSubmissions(includeArchived = false): Promise<DbContactSubmission[]> {
   const sb = getSupabase();
   if (!sb) return [];
-  const { data } = await sb
+  let query = sb
     .from("contact_submissions")
     .select("*")
     .order("created_at", { ascending: false });
+  if (!includeArchived) {
+    query = query.eq("archived", false);
+  }
+  const { data } = await query;
   return (data ?? []) as DbContactSubmission[];
 }
 
+export async function archiveContactSubmission(id: string): Promise<void> {
+  const sb = getSupabase();
+  if (!sb) throw notConfiguredError("archiveContactSubmission");
+  const { error } = await sb
+    .from("contact_submissions")
+    .update({ archived: true })
+    .eq("id", id);
+  if (error) throw new Error(`archiveContactSubmission: ${error.message}`);
+}
+
+export async function unarchiveContactSubmission(id: string): Promise<void> {
+  const sb = getSupabase();
+  if (!sb) throw notConfiguredError("unarchiveContactSubmission");
+  const { error } = await sb
+    .from("contact_submissions")
+    .update({ archived: false })
+    .eq("id", id);
+  if (error) throw new Error(`unarchiveContactSubmission: ${error.message}`);
+}
+
 export async function insertContactSubmission(
-  input: Omit<DbContactSubmission, "id" | "created_at">,
+  input: Omit<DbContactSubmission, "id" | "created_at" | "archived">,
 ): Promise<void> {
   const sb = getSupabase();
   if (!sb) return; // Silently skip — Web3Forms still delivers the email

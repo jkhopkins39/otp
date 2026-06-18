@@ -31,6 +31,7 @@ export const site = {
 export const nav = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
+  { label: "Work", href: "/work" },
   { label: "Portfolio", href: "/portfolio" },
   { label: "Blog", href: "/blog" },
   { label: "Contact", href: "/contact" },
@@ -88,6 +89,7 @@ export type Project = {
   blurb: string;
   accent: string;
   featured?: boolean;
+  image_url?: string;
 };
 
 export const projects: Project[] = [

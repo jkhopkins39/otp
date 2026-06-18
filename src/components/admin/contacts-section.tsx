@@ -1,4 +1,9 @@
-import { Inbox, Mail, Phone, Calendar, MapPin, DollarSign } from "lucide-react";
+"use client";
+
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { Inbox, Mail, Phone, Archive, ArchiveRestore } from "lucide-react";
+import { archiveContactAction, unarchiveContactAction } from "@/app/admin/actions";
 import type { DbContactSubmission } from "@/lib/site-store";
 
 function formatDate(ts: number) {
@@ -21,75 +26,166 @@ function Field({ label, value }: { label: string; value: string }) {
   );
 }
 
-export function ContactsSection({ submissions }: { submissions: DbContactSubmission[] }) {
+function SubmissionCard({
+  s,
+  showArchived,
+  onArchive,
+  onUnarchive,
+  isPending,
+}: {
+  s: DbContactSubmission;
+  showArchived: boolean;
+  onArchive: (id: string) => void;
+  onUnarchive: (id: string) => void;
+  isPending: boolean;
+}) {
+  return (
+    <li className="rounded-2xl border border-border surface-card p-5 shadow-soft">
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <p className="font-display text-lg font-bold">{s.full_name}</p>
+          <p className="text-xs text-muted-foreground">{formatDate(s.created_at)}</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <a
+            href={`mailto:${s.email}`}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-gold/50 hover:text-foreground"
+          >
+            <Mail className="h-3.5 w-3.5" />
+            {s.email}
+          </a>
+          {s.phone && (
+            <a
+              href={`tel:${s.phone.replace(/[^\d+]/g, "")}`}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-gold/50 hover:text-foreground"
+            >
+              <Phone className="h-3.5 w-3.5" />
+              {s.phone}
+            </a>
+          )}
+          {showArchived ? (
+            <button
+              type="button"
+              onClick={() => onUnarchive(s.id)}
+              disabled={isPending}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-gold/50 hover:text-foreground disabled:opacity-50"
+            >
+              <ArchiveRestore className="h-3.5 w-3.5" />
+              Restore
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onArchive(s.id)}
+              disabled={isPending}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-amber-400/60 hover:text-amber-600 disabled:opacity-50"
+            >
+              <Archive className="h-3.5 w-3.5" />
+              Archive
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="h-px bg-border mb-4" />
+
+      <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <Field label="Event type" value={s.event_type} />
+        <Field label="Event date" value={s.event_date} />
+        <Field label="Venue" value={s.venue} />
+        <Field label="Expected attendance" value={s.expected_attendance} />
+        <Field label="Indoor / Outdoor" value={s.venue_type} />
+        <Field label="Services needed" value={s.services} />
+        <Field label="Setup window" value={s.setup_window} />
+        <Field label="Budget range" value={s.budget_range} />
+        <Field label="Referral source" value={s.referral_source} />
+      </dl>
+
+      {s.additional_details && (
+        <div className="mt-4">
+          <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Additional details</dt>
+          <dd className="mt-1 text-sm leading-relaxed text-muted-foreground">{s.additional_details}</dd>
+        </div>
+      )}
+    </li>
+  );
+}
+
+export function ContactsSection({
+  submissions,
+  showArchived,
+}: {
+  submissions: DbContactSubmission[];
+  showArchived: boolean;
+}) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  function handleArchive(id: string) {
+    startTransition(async () => {
+      await archiveContactAction(id);
+      router.refresh();
+    });
+  }
+
+  function handleUnarchive(id: string) {
+    startTransition(async () => {
+      await unarchiveContactAction(id);
+      router.refresh();
+    });
+  }
+
   return (
     <div>
-      <div className="mb-4 flex items-center gap-2">
+      <div className="mb-4 flex flex-wrap items-center gap-2">
         <Inbox className="h-5 w-5 text-gold" />
         <h2 className="font-display text-xl font-bold">Contact submissions</h2>
-        <span className="ml-auto rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">{submissions.length}</span>
+        <span className="ml-2 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">{submissions.length}</span>
+        <div className="ml-auto flex items-center gap-2">
+          <a
+            href={showArchived ? "?tab=contacts" : "?tab=contacts&archived=1"}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-gold/50 hover:text-foreground"
+          >
+            {showArchived ? (
+              <><Inbox className="h-3.5 w-3.5" /> Active leads</>
+            ) : (
+              <><Archive className="h-3.5 w-3.5" /> View archived</>
+            )}
+          </a>
+        </div>
       </div>
 
       {submissions.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border px-6 py-16 text-center">
-          <Inbox className="h-10 w-10 text-muted-foreground/40" />
-          <p className="font-display text-lg font-bold">No submissions yet</p>
-          <p className="max-w-sm text-sm text-muted-foreground">
-            Contact form leads will appear here once people fill out the form on the website.
-          </p>
+          {showArchived ? (
+            <>
+              <Archive className="h-10 w-10 text-muted-foreground/40" />
+              <p className="font-display text-lg font-bold">No archived leads</p>
+              <p className="max-w-sm text-sm text-muted-foreground">
+                Leads you archive will appear here.
+              </p>
+            </>
+          ) : (
+            <>
+              <Inbox className="h-10 w-10 text-muted-foreground/40" />
+              <p className="font-display text-lg font-bold">No submissions yet</p>
+              <p className="max-w-sm text-sm text-muted-foreground">
+                Contact form leads will appear here once people fill out the form on the website.
+              </p>
+            </>
+          )}
         </div>
       ) : (
         <ul className="flex flex-col gap-5">
           {submissions.map((s) => (
-            <li key={s.id} className="rounded-2xl border border-border surface-card p-5 shadow-soft">
-              {/* Header */}
-              <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
-                <div>
-                  <p className="font-display text-lg font-bold">{s.full_name}</p>
-                  <p className="text-xs text-muted-foreground">{formatDate(s.created_at)}</p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <a
-                    href={`mailto:${s.email}`}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-gold/50 hover:text-foreground"
-                  >
-                    <Mail className="h-3.5 w-3.5" />
-                    {s.email}
-                  </a>
-                  {s.phone && (
-                    <a
-                      href={`tel:${s.phone.replace(/[^\d+]/g, "")}`}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-gold/50 hover:text-foreground"
-                    >
-                      <Phone className="h-3.5 w-3.5" />
-                      {s.phone}
-                    </a>
-                  )}
-                </div>
-              </div>
-
-              <div className="h-px bg-border mb-4" />
-
-              {/* Details grid */}
-              <dl className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                <Field label="Event type" value={s.event_type} />
-                <Field label="Event date" value={s.event_date} />
-                <Field label="Venue" value={s.venue} />
-                <Field label="Expected attendance" value={s.expected_attendance} />
-                <Field label="Indoor / Outdoor" value={s.venue_type} />
-                <Field label="Services needed" value={s.services} />
-                <Field label="Setup window" value={s.setup_window} />
-                <Field label="Budget range" value={s.budget_range} />
-                <Field label="Referral source" value={s.referral_source} />
-              </dl>
-
-              {s.additional_details && (
-                <div className="mt-4">
-                  <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Additional details</dt>
-                  <dd className="mt-1 text-sm leading-relaxed text-muted-foreground">{s.additional_details}</dd>
-                </div>
-              )}
-            </li>
+            <SubmissionCard
+              key={s.id}
+              s={s}
+              showArchived={showArchived}
+              onArchive={handleArchive}
+              onUnarchive={handleUnarchive}
+              isPending={isPending}
+            />
           ))}
         </ul>
       )}

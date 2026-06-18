@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Mail } from "lucide-react";
 import { Section, SectionHeading } from "@/components/ui/section";
 import { PageHeader } from "@/components/ui/page-header";
 import { site, values, stats } from "@/lib/content";
@@ -68,6 +69,15 @@ export default async function AboutPage() {
                   <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
                     {member.bio}
                   </p>
+                )}
+                {member.email && (
+                  <a
+                    href={`mailto:${member.email}`}
+                    className="mt-4 inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-gold/50 hover:text-foreground"
+                  >
+                    <Mail className="h-4 w-4" />
+                    {member.email}
+                  </a>
                 )}
               </div>
             </div>

@@ -3,9 +3,10 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Trash2, Briefcase, Star } from "lucide-react";
-import { createJobAction, deleteJobAction } from "@/app/admin/actions";
+import { createJobAction, deleteJobAction, updateJobFeaturedAction } from "@/app/admin/actions";
 import type { DbJob } from "@/lib/site-store";
 import { cn } from "@/lib/utils";
+import { ImageUpload } from "@/components/ui/image-upload";
 
 const inputBase =
   "w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground " +
@@ -19,16 +20,17 @@ export function JobsSection({ jobs }: { jobs: DbJob[] }) {
   const [year, setYear] = useState(String(new Date().getFullYear()));
   const [blurb, setBlurb] = useState("");
   const [featured, setFeatured] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
   const [error, setError] = useState("");
 
   function handleAdd(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     startTransition(async () => {
-      const res = await createJobAction({ title, category, year, blurb, featured });
+      const res = await createJobAction({ title, category, year, blurb, featured, image_url: imageUrl });
       if (!res.ok) { setError(res.error); return; }
       setTitle(""); setCategory(""); setYear(String(new Date().getFullYear()));
-      setBlurb(""); setFeatured(false);
+      setBlurb(""); setFeatured(false); setImageUrl("");
       router.refresh();
     });
   }
@@ -36,6 +38,13 @@ export function JobsSection({ jobs }: { jobs: DbJob[] }) {
   function handleDelete(id: string) {
     startTransition(async () => {
       await deleteJobAction(id);
+      router.refresh();
+    });
+  }
+
+  function handleToggleFeatured(id: string, current: boolean) {
+    startTransition(async () => {
+      await updateJobFeaturedAction(id, !current);
       router.refresh();
     });
   }
@@ -68,6 +77,12 @@ export function JobsSection({ jobs }: { jobs: DbJob[] }) {
         <div>
           <label className="mb-1.5 block text-sm font-medium">Description <span className="text-xs font-normal text-muted-foreground">(optional)</span></label>
           <textarea className={cn(inputBase, "resize-y")} value={blurb} onChange={e => setBlurb(e.target.value)} rows={2} placeholder="Short description…" />
+        </div>
+        <div>
+          <label className="mb-1.5 block text-sm font-medium">
+            Photo <span className="text-xs font-normal text-muted-foreground">(optional)</span>
+          </label>
+          <ImageUpload value={imageUrl} onChange={setImageUrl} />
         </div>
 
         <label className="flex cursor-pointer items-center gap-3">
@@ -106,6 +121,10 @@ export function JobsSection({ jobs }: { jobs: DbJob[] }) {
           <ul className="flex flex-col gap-3">
             {jobs.map((j) => (
               <li key={j.id} className="flex items-start gap-3 rounded-2xl border border-border surface-card p-4 shadow-soft">
+                {j.image_url && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={j.image_url} alt={j.title} className="h-14 w-14 shrink-0 rounded-xl object-cover" />
+                )}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <p className="font-semibold">{j.title}</p>
@@ -118,15 +137,32 @@ export function JobsSection({ jobs }: { jobs: DbJob[] }) {
                   <p className="text-xs text-muted-foreground">{j.category} · {j.year}</p>
                   {j.blurb && <p className="mt-1 text-xs text-muted-foreground line-clamp-1">{j.blurb}</p>}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleDelete(j.id)}
-                  disabled={isPending}
-                  aria-label={`Delete ${j.title}`}
-                  className="shrink-0 rounded-full border border-border p-2 text-muted-foreground transition-colors hover:border-red-400/50 hover:text-red-500 disabled:opacity-50"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
+                <div className="flex shrink-0 items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => handleToggleFeatured(j.id, j.featured)}
+                    disabled={isPending}
+                    aria-label={j.featured ? "Unfeature" : "Feature on home page"}
+                    title={j.featured ? "Remove from home page" : "Show on home page"}
+                    className={cn(
+                      "rounded-full border p-2 transition-colors disabled:opacity-50",
+                      j.featured
+                        ? "border-gold/40 bg-gold/10 text-gold-strong hover:border-gold/60"
+                        : "border-border text-muted-foreground hover:border-gold/40 hover:text-gold-strong",
+                    )}
+                  >
+                    <Star className={cn("h-4 w-4", j.featured && "fill-gold-strong")} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(j.id)}
+                    disabled={isPending}
+                    aria-label={`Delete ${j.title}`}
+                    className="rounded-full border border-border p-2 text-muted-foreground transition-colors hover:border-red-400/50 hover:text-red-500 disabled:opacity-50"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
