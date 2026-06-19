@@ -36,6 +36,17 @@ export async function GET(request: Request) {
     },
   });
 
+  // Verify token and check tenant before setting any session cookie
+  const { data: { user: tokenUser }, error: userError } = await supabase.auth.getUser(access_token);
+  if (userError || !tokenUser) {
+    return NextResponse.redirect(`${origin}/admin/login?error=invalid_session`);
+  }
+  const tenant = tokenUser.app_metadata?.tenant as string | undefined;
+  const role = tokenUser.app_metadata?.role as string | undefined;
+  if (tenant !== 'otp' && role !== 'agency_owner') {
+    return NextResponse.redirect(`${origin}/admin/login?error=unauthorized`);
+  }
+
   const { error } = await supabase.auth.setSession({ access_token, refresh_token });
   if (error) {
     return NextResponse.redirect(`${origin}/admin/login?error=invalid_session`);
