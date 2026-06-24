@@ -8,7 +8,7 @@
  * Run:  npx vitest run tests/integration.test.ts
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // ─── Resend mock ──────────────────────────────────────────────────────────────
 const mockEmailSend = vi.hoisted(() =>
@@ -28,6 +28,7 @@ process.env.RESEND_FROM_EMAIL = "contact@onetalentproductions.com";
 process.env.RESEND_TO_EMAIL = "onetalentproductions@gmail.com";
 
 import { POST } from "../src/app/api/contact/route";
+import * as siteStore from "../src/lib/site-store";
 import {
   insertContactSubmission,
   listContactSubmissions,
@@ -91,7 +92,14 @@ describe("contact submissions", () => {
 
 // ─── Contact API route ────────────────────────────────────────────────────────
 describe("POST /api/contact", () => {
-  beforeEach(() => mockEmailSend.mockClear());
+  beforeEach(() => {
+    mockEmailSend.mockClear();
+    vi.spyOn(siteStore, "insertContactSubmission").mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
 
   function makeRequest(body: Record<string, string>) {
     return new Request("http://localhost/api/contact", {

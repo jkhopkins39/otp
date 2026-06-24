@@ -456,9 +456,16 @@ export async function insertContactSubmission(
   input: Omit<DbContactSubmission, "id" | "created_at" | "archived">,
 ): Promise<void> {
   const sb = getSupabase();
-  if (!sb) return; // Silently skip — Web3Forms still delivers the email
+  if (!sb) {
+    throw new Error("Database not configured.");
+  }
 
-  await sb
+  const { error } = await sb
     .from("contact_submissions")
     .insert({ ...input, created_at: Date.now() });
+
+  if (error) {
+    console.error("[supabase] contact_submissions insert failed:", error.message);
+    throw new Error(error.message);
+  }
 }

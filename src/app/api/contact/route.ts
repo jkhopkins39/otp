@@ -28,7 +28,7 @@ function buildEmailHtml(b: Record<string, string>): string {
     <!-- Body -->
     <div style="padding:28px 32px">
       <p style="margin:0 0 20px;font-size:14px;color:#374151">
-        <strong>${b.full_name}</strong> submitted an event request from the website.
+        <strong>${b.full_name?.trim() || "Website visitor"}</strong> submitted an event request from the website.
       </p>
 
       <!-- Contact -->
@@ -68,7 +68,7 @@ function buildEmailHtml(b: Record<string, string>): string {
     <!-- Footer -->
     <div style="padding:16px 32px;background:#f9fafb;border-top:1px solid #e5e7eb">
       <p style="margin:0;font-size:12px;color:#9ca3af">
-        Submitted via onetalentproductions.com · Reply directly to this email to respond to ${b.full_name}.
+        Submitted via onetalentproductions.com · Reply directly to this email to respond to ${b.full_name?.trim() || "the sender"}.
       </p>
     </div>
   </div>
@@ -87,15 +87,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const required = ["full_name", "email"];
-  for (const field of required) {
-    if (!body[field]?.trim()) {
-      return NextResponse.json({ error: `Missing required field: ${field}` }, { status: 400 });
-    }
+  const email = body.email?.trim() ?? "";
+  const phone = body.phone?.trim() ?? "";
+
+  if (!email || !phone) {
+    return NextResponse.json({ error: "Email and phone are required" }, { status: 400 });
   }
 
-  // 1 — Save to Supabase (silently skipped if not configured)
-  await insertContactSubmission({
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
+  }
+
+  const submission = {
     full_name: body.full_name ?? "",
     email: body.email ?? "",
     phone: body.phone ?? "",
@@ -109,24 +112,45 @@ export async function POST(req: Request) {
     budget_range: body.budget_range ?? "",
     referral_source: body.referral_source ?? "",
     additional_details: body.additional_details ?? "",
-  });
+  };
+
+  try {
+    await insertContactSubmission(submission);
+  } catch (err) {
+    console.error("[contact] database save failed:", err);
+    return NextResponse.json(
+      { error: "Unable to save your request. Please try again or email us directly." },
+      { status: 500 },
+    );
+  }
 
   // 2 — Send email via Resend (primary)
   const resendKey = process.env.RESEND_API_KEY;
   if (resendKey) {
     try {
       const resend = new Resend(resendKey);
-      await resend.emails.send({
+      const { error } = await resend.emails.send({
         from: process.env.RESEND_FROM_EMAIL ?? "contact@onetalentproductions.com",
         to: process.env.RESEND_TO_EMAIL ?? "onetalentproductions@gmail.com",
         replyTo: body.email,
-        subject: `New Event Inquiry from ${body.full_name}`,
+        subject: `New Event Inquiry${body.full_name?.trim() ? ` from ${body.full_name.trim()}` : ""}`,
         html: buildEmailHtml(body),
       });
+      if (error) {
+        console.error("Resend error:", error);
+        return NextResponse.json(
+          { error: "Unable to send your request. Please try again or email us directly." },
+          { status: 503 },
+        );
+      }
+      return NextResponse.json({ success: true });
     } catch (err) {
       console.error("Resend error:", err);
+      return NextResponse.json(
+        { error: "Unable to send your request. Please try again or email us directly." },
+        { status: 503 },
+      );
     }
-    return NextResponse.json({ success: true });
   }
 
   // 3 — Fall back to Web3Forms if Resend is not configured
@@ -162,11 +186,25 @@ export async function POST(req: Request) {
         body: fd,
       });
       const json = await res.json();
-      if (!json.success) console.error("Web3Forms error:", json);
+      if (!json.success) {
+        console.error("Web3Forms error:", json);
+        return NextResponse.json(
+          { error: "Unable to send your request. Please try again or email us directly." },
+          { status: 503 },
+        );
+      }
+      return NextResponse.json({ success: true });
     } catch (err) {
       console.error("Web3Forms fetch failed:", err);
+      return NextResponse.json(
+        { error: "Unable to send your request. Please try again or email us directly." },
+        { status: 503 },
+      );
     }
   }
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json(
+    { error: "Email service is not configured." },
+    { status: 503 },
+  );
 }

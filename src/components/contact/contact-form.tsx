@@ -176,12 +176,11 @@ export function ContactForm() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <FieldGroup className="sm:col-span-2">
-          <Label required>Full Name</Label>
+          <Label>Name</Label>
           <input
             type="text"
             name="full_name"
             placeholder="Jane Smith"
-            required
             autoComplete="name"
             className={fieldBase}
           />
@@ -217,8 +216,8 @@ export function ContactForm() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <FieldGroup>
-          <Label required>Type of Event</Label>
-          <select name="event_type" required className={cn(fieldBase, "cursor-pointer")}>
+          <Label>Type of Event</Label>
+          <select name="event_type" className={cn(fieldBase, "cursor-pointer")}>
             <option value="">Select an event type…</option>
             {EVENT_TYPES.map((t) => (
               <option key={t} value={t}>{t}</option>
