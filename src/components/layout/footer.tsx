@@ -84,7 +84,7 @@ export function Footer() {
           <p className="text-center sm:text-right">
             Website by{" "}
             <a
-              href="https://www.hoppytech.com"
+              href="https://www.hoppytech.com/?utm_source=otp"
               target="_blank"
               rel="noopener"
               className="font-medium text-gold-strong underline-offset-4 transition-colors hover:text-gold hover:underline"
