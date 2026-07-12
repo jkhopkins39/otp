@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Send, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { isSpamSubmission, MIN_FORM_SUBMIT_MS } from "@/lib/spam-guard";
 
 const EVENT_TYPES = [
   "Wedding",
@@ -94,6 +95,7 @@ function SectionDivider({ step, title }: { step: string; title: string }) {
 export function ContactForm() {
   const [state, setState] = useState<FormState>("idle");
   const [services, setServices] = useState<string[]>([]);
+  const [formLoadTime] = useState(() => Date.now());
 
   function toggleService(service: string) {
     setServices((prev) =>
@@ -108,7 +110,7 @@ export function ContactForm() {
     const form = e.currentTarget;
     const fd = new FormData(form);
 
-    const payload: Record<string, string> = {
+    const payload: Record<string, string | number> = {
       full_name: String(fd.get("full_name") ?? ""),
       email: String(fd.get("email") ?? ""),
       phone: String(fd.get("phone") ?? ""),
@@ -122,7 +124,16 @@ export function ContactForm() {
       budget_range: String(fd.get("budget_range") ?? ""),
       referral_source: String(fd.get("referral_source") ?? ""),
       additional_details: String(fd.get("additional_details") ?? ""),
+      _honey: String(fd.get("_honey") ?? ""),
+      formLoadTime,
     };
+
+    if (isSpamSubmission({ _honey: String(payload._honey), formLoadTime })) {
+      setState("success");
+      form.reset();
+      setServices([]);
+      return;
+    }
 
     try {
       const res = await fetch("/api/contact", {
@@ -372,7 +383,7 @@ export function ContactForm() {
         <Button
           type="submit"
           size="md"
-          disabled={state === "submitting"}
+          disabled={state === "submitting" || Date.now() - formLoadTime < MIN_FORM_SUBMIT_MS}
           className="gap-2 self-end"
         >
           {state === "submitting" ? (

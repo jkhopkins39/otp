@@ -101,7 +101,7 @@ describe("POST /api/contact", () => {
     vi.restoreAllMocks();
   });
 
-  function makeRequest(body: Record<string, string>) {
+  function makeRequest(body: Record<string, string | number>) {
     return new Request("http://localhost/api/contact", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -140,6 +140,20 @@ describe("POST /api/contact", () => {
     const emailCall = mockEmailSend.mock.calls[0][0];
     expect(emailCall.subject).toContain("Jordan Clark");
     expect(emailCall.replyTo).toBe("jordan@example.com");
+  });
+
+  it("silently accepts honeypot submissions without sending email", async () => {
+    const res = await POST(
+      makeRequest({
+        ...validBody,
+        _honey: "bot-filled",
+        formLoadTime: Date.now() - 5000,
+      }),
+    );
+    expect(res.status).toBe(200);
+    const json = await res.json();
+    expect(json.success).toBe(true);
+    expect(mockEmailSend).not.toHaveBeenCalled();
   });
 
   it("sends email via Resend, NOT Web3Forms, when RESEND_API_KEY is set", async () => {

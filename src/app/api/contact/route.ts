@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { insertContactSubmission } from "@/lib/site-store";
+import {
+  getClientIpFromHeaders,
+  isRateLimited,
+  isSpamSubmission,
+} from "@/lib/spam-guard";
 
 // ── Email HTML builder ───────────────────────────────────────────
 
@@ -79,7 +84,12 @@ function buildEmailHtml(b: Record<string, string>): string {
 // ── Route handler ────────────────────────────────────────────────
 
 export async function POST(req: Request) {
-  let body: Record<string, string>;
+  const ip = getClientIpFromHeaders(req.headers);
+  if (isRateLimited(ip)) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
+  let body: Record<string, string | number>;
 
   try {
     body = await req.json();
@@ -87,8 +97,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const email = body.email?.trim() ?? "";
-  const phone = body.phone?.trim() ?? "";
+  if (
+    isSpamSubmission({
+      _honey: String(body._honey ?? ""),
+      formLoadTime:
+        typeof body.formLoadTime === "number"
+          ? body.formLoadTime
+          : Number(body.formLoadTime) || undefined,
+    })
+  ) {
+    return NextResponse.json({ success: true });
+  }
+
+  const email = String(body.email ?? "").trim();
+  const phone = String(body.phone ?? "").trim();
 
   if (!email || !phone) {
     return NextResponse.json({ error: "Email and phone are required" }, { status: 400 });
@@ -99,19 +121,19 @@ export async function POST(req: Request) {
   }
 
   const submission = {
-    full_name: body.full_name ?? "",
-    email: body.email ?? "",
-    phone: body.phone ?? "",
-    event_type: body.event_type ?? "",
-    event_date: body.event_date ?? "",
-    venue: body.venue ?? "",
-    expected_attendance: body.expected_attendance ?? "",
-    venue_type: body.venue_type ?? "",
-    services: body.services ?? "",
-    setup_window: body.setup_window ?? "",
-    budget_range: body.budget_range ?? "",
-    referral_source: body.referral_source ?? "",
-    additional_details: body.additional_details ?? "",
+    full_name: String(body.full_name ?? ""),
+    email: String(body.email ?? ""),
+    phone: String(body.phone ?? ""),
+    event_type: String(body.event_type ?? ""),
+    event_date: String(body.event_date ?? ""),
+    venue: String(body.venue ?? ""),
+    expected_attendance: String(body.expected_attendance ?? ""),
+    venue_type: String(body.venue_type ?? ""),
+    services: String(body.services ?? ""),
+    setup_window: String(body.setup_window ?? ""),
+    budget_range: String(body.budget_range ?? ""),
+    referral_source: String(body.referral_source ?? ""),
+    additional_details: String(body.additional_details ?? ""),
   };
 
   try {
@@ -132,9 +154,9 @@ export async function POST(req: Request) {
       const { error } = await resend.emails.send({
         from: process.env.RESEND_FROM_EMAIL ?? "contact@onetalentproductions.com",
         to: process.env.RESEND_TO_EMAIL ?? "onetalentproductions@gmail.com",
-        replyTo: body.email,
-        subject: `New Event Inquiry${body.full_name?.trim() ? ` from ${body.full_name.trim()}` : ""}`,
-        html: buildEmailHtml(body),
+        replyTo: email,
+        subject: `New Event Inquiry${String(body.full_name ?? "").trim() ? ` from ${String(body.full_name).trim()}` : ""}`,
+        html: buildEmailHtml(body as Record<string, string>),
       });
       if (error) {
         console.error("Resend error:", error);
