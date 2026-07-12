@@ -3,10 +3,12 @@ import { Inter, Sora } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { ThemeScript } from "@/components/theme/theme-script";
+import { JsonLd } from "@/components/json-ld";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { SiteBackground } from "@/components/layout/site-background";
 import { site } from "@/lib/content";
+import { hoppyTechWebDeveloperAttributionJsonLd } from "@/lib/hoppy-tech-schema";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -68,6 +70,13 @@ export default function RootLayout({
           </main>
           <Footer />
         </ThemeProvider>
+        <JsonLd
+          data={hoppyTechWebDeveloperAttributionJsonLd({
+            siteUrl: "https://onetalentproductions.com",
+            siteName: site.name,
+            description: site.description,
+          })}
+        />
       </body>
     </html>
   );
