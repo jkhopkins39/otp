@@ -156,9 +156,8 @@ describe("POST /api/contact", () => {
     expect(mockEmailSend).not.toHaveBeenCalled();
   });
 
-  it("sends email via Resend, NOT Web3Forms, when RESEND_API_KEY is set", async () => {
+  it("sends email via Resend when RESEND_API_KEY is set", async () => {
     await POST(makeRequest(validBody));
-    // Resend mock was called — no fetch to web3forms.com should occur
     expect(mockEmailSend).toHaveBeenCalledOnce();
   });
 });

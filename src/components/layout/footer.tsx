@@ -78,9 +78,14 @@ export function Footer() {
         <div className="divider-gold my-10" />
 
         <div className="flex flex-col items-center justify-between gap-3 text-xs text-muted-foreground sm:flex-row">
-          <p>
-            © {year} {site.name}. All rights reserved.
-          </p>
+          <div className="flex items-center gap-3 text-center sm:text-left">
+            <p>
+              © {year} {site.name}. All rights reserved.
+            </p>
+            <Link href="/privacy" className="transition-colors hover:text-foreground">
+              Privacy Policy
+            </Link>
+          </div>
           <p className="text-center sm:text-right">
             Website by{" "}
             <a

@@ -146,87 +146,38 @@ export async function POST(req: Request) {
     );
   }
 
-  // 2 — Send email via Resend (primary)
-  const resendKey = process.env.RESEND_API_KEY;
-  if (resendKey) {
-    try {
-      const resend = new Resend(resendKey);
-      const { error } = await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL ?? "contact@onetalentproductions.com",
-        to: process.env.RESEND_TO_EMAIL ?? "onetalentproductions@gmail.com",
-        replyTo: email,
-        subject: `New Event Inquiry${String(body.full_name ?? "").trim() ? ` from ${String(body.full_name).trim()}` : ""}`,
-        html: buildEmailHtml(body as Record<string, string>),
-      });
-      if (error) {
-        console.error("Resend error:", error);
-        return NextResponse.json(
-          { error: "Unable to send your request. Please try again or email us directly." },
-          { status: 503 },
-        );
-      }
-      return NextResponse.json({ success: true });
-    } catch (err) {
-      console.error("Resend error:", err);
+  // 2 — Send email via Resend (required)
+  const resendKey = process.env.RESEND_API_KEY?.trim();
+  if (!resendKey) {
+    console.error("[contact] RESEND_API_KEY is not configured.");
+    return NextResponse.json(
+      { error: "Email service is not configured." },
+      { status: 503 },
+    );
+  }
+
+  try {
+    const resend = new Resend(resendKey);
+    const { error } = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL ?? "contact@onetalentproductions.com",
+      to: process.env.RESEND_TO_EMAIL ?? "onetalentproductions@gmail.com",
+      replyTo: email,
+      subject: `New Event Inquiry${String(body.full_name ?? "").trim() ? ` from ${String(body.full_name).trim()}` : ""}`,
+      html: buildEmailHtml(body as Record<string, string>),
+    });
+    if (error) {
+      console.error("Resend error:", error);
       return NextResponse.json(
         { error: "Unable to send your request. Please try again or email us directly." },
         { status: 503 },
       );
     }
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("Resend error:", err);
+    return NextResponse.json(
+      { error: "Unable to send your request. Please try again or email us directly." },
+      { status: 503 },
+    );
   }
-
-  // 3 — Fall back to Web3Forms if Resend is not configured
-  const web3Key = process.env.WEB3FORMS_KEY ?? process.env.NEXT_PUBLIC_WEB3FORMS_KEY ?? "";
-  if (web3Key) {
-    try {
-      const fd = new FormData();
-      fd.append("access_key", web3Key);
-      fd.append("subject", `New Event Inquiry — ${body.full_name}`);
-      fd.append("from_name", "One Talent Productions Website");
-      fd.append("name", body.full_name ?? "");
-      fd.append("email", body.email ?? "");
-
-      const fields: [string, string][] = [
-        ["Phone Number", body.phone],
-        ["Event Type", body.event_type],
-        ["Event Date", body.event_date],
-        ["Venue", body.venue],
-        ["Expected Attendance", body.expected_attendance],
-        ["Venue Type", body.venue_type],
-        ["Services Needed", body.services],
-        ["Setup Window", body.setup_window],
-        ["Budget Range", body.budget_range],
-        ["Referral Source", body.referral_source],
-        ["Additional Details", body.additional_details],
-      ];
-      for (const [label, value] of fields) {
-        if (value) fd.append(label, value);
-      }
-
-      const res = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        body: fd,
-      });
-      const json = await res.json();
-      if (!json.success) {
-        console.error("Web3Forms error:", json);
-        return NextResponse.json(
-          { error: "Unable to send your request. Please try again or email us directly." },
-          { status: 503 },
-        );
-      }
-      return NextResponse.json({ success: true });
-    } catch (err) {
-      console.error("Web3Forms fetch failed:", err);
-      return NextResponse.json(
-        { error: "Unable to send your request. Please try again or email us directly." },
-        { status: 503 },
-      );
-    }
-  }
-
-  return NextResponse.json(
-    { error: "Email service is not configured." },
-    { status: 503 },
-  );
 }
