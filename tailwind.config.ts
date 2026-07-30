@@ -5,9 +5,13 @@ import type { Config } from "tailwindcss";
  * Colors are stored as HSL channel triplets ("H S% L%") so Tailwind's
  * `<alpha-value>` opacity modifiers keep working (e.g. bg-gold/20).
  *
- * The gold accent hue intentionally SHIFTS between light and dark themes:
- *  - light: a deeper, warmer amber that reads cleanly on white
- *  - dark:  a more luminous, saturated gold that glows against black
+ * There is ONE accent: signal orange. The legacy `gold*` / `orange` color names
+ * are retained (they are referenced widely, including /admin) but they all map
+ * onto that single accent scale:
+ *   gold-soft   decorative tint only
+ *   gold        signal orange — fills, rules, icons, borders (non-text)
+ *   gold-strong accessible accent — text and text-bearing fills (AA in both themes)
+ *   gold-ink    ink that sits on a gold-strong fill
  */
 function token(variable: string) {
   return `hsl(var(${variable}) / <alpha-value>)`;
@@ -42,10 +46,14 @@ const config: Config = {
         "muted-foreground": token("--muted-foreground"),
         border: token("--border"),
         ring: token("--ring"),
+        destructive: token("--destructive"),
         gold: {
           DEFAULT: token("--gold"),
           soft: token("--gold-soft"),
           strong: token("--gold-strong"),
+          // Hover fill for solid accent buttons. Darkens on light, brightens on
+          // dark, so `text-gold-ink` stays ≥4.5:1 in both themes.
+          hover: token("--gold-strong-hover"),
           ink: token("--gold-ink"),
         },
         orange: {
@@ -54,27 +62,41 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
-        display: ["var(--font-display)", "var(--font-sans)", "serif"],
+        display: ["var(--font-display)", "var(--font-sans)", "sans-serif"],
       },
+      /**
+       * Monotonic radius scale. The old scale left `3xl` at Tailwind's default
+       * 1.5rem, which rendered SMALLER than the overridden `2xl` (2rem).
+       * Standard: buttons/inputs 8px · cards & media 12px · large slabs 16px.
+       */
       borderRadius: {
-        sm: "0.5rem",
-        DEFAULT: "0.75rem",
-        md: "0.875rem",
-        lg: "1.125rem",
-        xl: "1.5rem",
-        "2xl": "2rem",
+        none: "0px",
+        sm: "0.25rem" /*  4px — checkboxes, tiny chips */,
+        DEFAULT: "0.5rem" /*  8px — buttons, inputs */,
+        md: "0.5rem" /*  8px — buttons, inputs */,
+        lg: "0.625rem" /* 10px */,
+        xl: "0.75rem" /* 12px — cards, media */,
+        "2xl": "0.75rem" /* 12px — cards, panels */,
+        "3xl": "1rem" /* 16px — large slabs */,
+        full: "9999px",
       },
       boxShadow: {
-        soft: "0 1px 2px hsl(var(--shadow-color) / 0.06), 0 8px 24px hsl(var(--shadow-color) / 0.08)",
-        lift: "0 2px 4px hsl(var(--shadow-color) / 0.08), 0 18px 48px hsl(var(--shadow-color) / 0.14)",
-        gold: "0 8px 30px hsl(var(--gold) / 0.35)",
-        "gold-lg": "0 14px 50px hsl(var(--gold) / 0.45)",
+        soft: "0 1px 2px hsl(var(--shadow-color) / 0.05), 0 4px 12px hsl(var(--shadow-color) / 0.06)",
+        lift: "0 1px 2px hsl(var(--shadow-color) / 0.06), 0 10px 28px hsl(var(--shadow-color) / 0.10)",
+        // Legacy names, de-glowed: the accent no longer casts colored light.
+        gold: "0 1px 2px hsl(var(--shadow-color) / 0.05), 0 4px 12px hsl(var(--shadow-color) / 0.06)",
+        "gold-lg":
+          "0 1px 2px hsl(var(--shadow-color) / 0.06), 0 10px 28px hsl(var(--shadow-color) / 0.10)",
       },
+      /**
+       * Legacy utility names, flat fills. `bg-brand-gradient` resolves to the
+       * accessible accent so any `text-gold-ink` paired with it stays AA.
+       */
       backgroundImage: {
         "brand-gradient":
-          "linear-gradient(110deg, hsl(var(--gold-soft)) 0%, hsl(var(--gold)) 42%, hsl(var(--orange)) 100%)",
+          "linear-gradient(0deg, hsl(var(--gold-strong)) 0%, hsl(var(--gold-strong)) 100%)",
         "brand-radial":
-          "radial-gradient(120% 120% at 15% 10%, hsl(var(--gold-soft) / 0.85) 0%, transparent 55%), radial-gradient(120% 120% at 90% 25%, hsl(var(--orange) / 0.55) 0%, transparent 50%)",
+          "linear-gradient(0deg, hsl(var(--muted)) 0%, hsl(var(--muted)) 100%)",
       },
       spacing: {
         "18": "4.5rem",

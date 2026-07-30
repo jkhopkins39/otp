@@ -16,36 +16,17 @@ export function Section({
   );
 }
 
-export function Eyebrow({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) {
-  return (
-    <span
-      className={cn(
-        "inline-flex w-fit shrink-0 items-center gap-2 rounded-full border border-gold/35 px-3 py-1",
-        "surface-readable text-xs font-semibold uppercase tracking-[0.18em] text-gold-strong shadow-soft",
-        className,
-      )}
-    >
-      <span className="h-1.5 w-1.5 rounded-full bg-gold" aria-hidden />
-      {children}
-    </span>
-  );
-}
-
+/**
+ * Section header: a short accent rule, a solid heading, an optional muted lede.
+ * No pill, no uppercase letterspaced label, no gradient-clipped words.
+ */
 export function SectionHeading({
-  eyebrow,
   title,
   description,
   align = "left",
   className,
   compact = false,
 }: {
-  eyebrow?: string;
   title: React.ReactNode;
   description?: React.ReactNode;
   align?: "left" | "center";
@@ -55,16 +36,16 @@ export function SectionHeading({
   return (
     <div
       className={cn(
-        "text-panel flex flex-col",
+        "flex flex-col",
         compact ? "gap-3" : "gap-4",
         align === "center" ? "items-center text-center" : "items-start",
         className,
       )}
     >
-      {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
+      <span className="accent-rule" aria-hidden />
       <h2
         className={cn(
-          "font-display font-bold tracking-tight",
+          "font-display font-bold tracking-tight text-foreground",
           compact
             ? "text-2xl sm:text-3xl lg:text-[2.25rem] lg:leading-[1.08]"
             : "text-3xl sm:text-4xl lg:text-[2.75rem] lg:leading-[1.05]",

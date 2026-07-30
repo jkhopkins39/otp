@@ -27,7 +27,7 @@ export function YouTubeEmbed({
   return (
     <div
       className={cn(
-        "group relative aspect-video w-full overflow-hidden rounded-xl border border-border bg-black shadow-lift ring-1 ring-gold/10",
+        "group relative aspect-video w-full overflow-hidden rounded-xl border border-border bg-black shadow-soft",
         className,
       )}
     >
@@ -62,12 +62,12 @@ export function YouTubeEmbed({
             initial={false}
             whileHover={reduce ? undefined : { scale: 1.08 }}
             whileTap={reduce ? undefined : { scale: 0.94 }}
-            className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-brand-gradient text-gold-ink shadow-gold-lg ring-1 ring-white/30"
+            className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl bg-gold-strong text-gold-ink"
           >
             <Play className="ml-0.5 h-7 w-7 fill-current" />
           </motion.span>
 
-          <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-black/55 px-2.5 py-1 text-xs font-medium text-white backdrop-blur">
+          <span className="absolute bottom-3 left-3 inline-flex items-center gap-1.5 rounded-md bg-black/70 px-2.5 py-1 text-xs font-medium text-white">
             <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
             YouTube
           </span>

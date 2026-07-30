@@ -64,7 +64,7 @@ export function Navbar() {
                   href={item.href}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "relative rounded-full px-4 py-2 text-sm font-medium transition-colors",
+                    "relative rounded-md px-3.5 py-2 text-sm font-medium transition-colors",
                     active
                       ? "text-foreground"
                       : "text-muted-foreground hover:text-foreground",
@@ -78,7 +78,7 @@ export function Navbar() {
                           ? { duration: 0 }
                           : { type: "spring", stiffness: 400, damping: 32 }
                       }
-                      className="absolute inset-0 -z-10 rounded-full bg-gold/12 ring-1 ring-gold/25"
+                      className="absolute inset-x-2 -bottom-px -z-10 h-[3px] rounded-full bg-gold"
                     />
                   ) : null}
                   {item.label}
@@ -103,7 +103,7 @@ export function Navbar() {
               aria-expanded={open}
               aria-controls="mobile-menu"
               aria-label={open ? "Close menu" : "Open menu"}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:border-gold/50 md:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-border text-foreground transition-colors hover:border-gold md:hidden"
             >
               {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -119,7 +119,7 @@ export function Navbar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 top-16 z-40 surface-readable md:hidden"
+            className="fixed inset-0 top-16 z-40 border-t border-border surface-readable md:hidden"
           >
             <motion.ul
               className="container flex flex-col gap-1 py-6"
@@ -145,9 +145,9 @@ export function Navbar() {
                     <Link
                       href={item.href}
                       className={cn(
-                        "flex items-center justify-between rounded-xl px-4 py-4 text-lg font-medium transition-colors",
+                        "flex items-center justify-between rounded-md px-4 py-4 text-lg font-medium transition-colors",
                         active
-                          ? "bg-gold/12 text-foreground ring-1 ring-gold/25"
+                          ? "border-l-[3px] border-gold bg-muted text-foreground"
                           : "text-muted-foreground hover:bg-muted",
                       )}
                     >

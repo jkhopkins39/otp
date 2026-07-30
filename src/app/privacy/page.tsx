@@ -8,20 +8,20 @@ export const metadata: Metadata = {
   description: `Privacy policy for ${site.name}.`,
 };
 
-const h2 = "mt-10 font-display text-xl font-bold tracking-tight";
+const h2 = "mt-10 font-display text-xl font-bold tracking-tight text-foreground";
 const p = "mt-3 text-base leading-relaxed text-muted-foreground";
 const ul = "mt-3 list-disc space-y-1.5 pl-5 text-base leading-relaxed text-muted-foreground";
-const link = "font-medium text-gold-strong underline-offset-4 hover:text-gold hover:underline";
+const link = "font-medium text-gold-strong underline-offset-4 hover:underline";
 
 export default function PrivacyPage() {
   return (
     <>
-      <PageHeader eyebrow="Legal" title="Privacy Policy" description="Last updated: July 18, 2026" />
+      <PageHeader title="Privacy Policy" description="Last updated: July 18, 2026" />
 
-      <Section className="pt-8">
+      <Section className="pt-12 sm:pt-14">
         <div className="mx-auto max-w-3xl">
           <p className={p}>
-            {site.name} ("we," "us") operates this website. This policy explains what information we collect when
+            {site.name} (&ldquo;we,&rdquo; &ldquo;us&rdquo;) operates this website. This policy explains what information we collect when
             you request a quote for your event, and how it&apos;s handled.
           </p>
 
@@ -30,7 +30,7 @@ export default function PrivacyPage() {
           <ul className={ul}>
             <li>Your name, email address, and phone number</li>
             <li>Event type, date, venue, expected attendance, and venue type</li>
-            <li>Services you're interested in, setup window, budget range, and referral source</li>
+            <li>Services you&apos;re interested in, setup window, budget range, and referral source</li>
             <li>Any additional details you share with us</li>
           </ul>
 

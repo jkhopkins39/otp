@@ -62,14 +62,14 @@ const REFERRAL_SOURCES = [
 type FormState = "idle" | "submitting" | "success" | "error";
 
 const fieldBase =
-  "w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground " +
-  "placeholder:text-muted-foreground/60 transition-colors duration-150 " +
-  "focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold/60 " +
-  "hover:border-gold/30";
+  "w-full rounded-md border border-border bg-card px-3.5 py-2.5 text-sm text-foreground " +
+  "placeholder:text-muted-foreground/70 transition-colors duration-150 " +
+  "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 focus:ring-offset-card focus:border-gold " +
+  "hover:border-gold";
 
 function Label({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
-    <label className="block text-sm font-medium text-foreground/90">
+    <label className="block text-sm font-medium text-foreground">
       {children}
       {required && <span className="ml-1 text-gold-strong" aria-hidden>*</span>}
     </label>
@@ -82,11 +82,13 @@ function FieldGroup({ children, className }: { children: React.ReactNode; classN
 
 function SectionDivider({ step, title }: { step: string; title: string }) {
   return (
-    <div className="flex items-center gap-4 pt-2">
-      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gold/12 ring-1 ring-gold/30">
-        <span className="font-display text-xs font-bold text-gold-strong">{step}</span>
-      </div>
-      <h3 className="font-display text-base font-semibold tracking-tight">{title}</h3>
+    <div className="flex items-center gap-3 pt-3">
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-sm bg-gold-strong font-display text-xs font-bold tabular-nums text-gold-ink">
+        {step}
+      </span>
+      <h3 className="font-display text-base font-semibold tracking-tight text-foreground">
+        {title}
+      </h3>
       <div className="h-px flex-1 bg-border" />
     </div>
   );
@@ -156,12 +158,14 @@ export function ContactForm() {
 
   if (state === "success") {
     return (
-      <div className="flex flex-col items-center gap-5 rounded-3xl border border-border surface-card px-8 py-14 text-center shadow-soft">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gold/12 ring-1 ring-gold/30">
-          <CheckCircle2 className="h-7 w-7 text-gold-strong" />
+      <div className="flex flex-col items-center gap-5 rounded-2xl border border-border surface-card px-8 py-14 text-center shadow-soft">
+        <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-border bg-muted">
+          <CheckCircle2 className="h-7 w-7 text-gold-strong" aria-hidden />
         </div>
         <div className="flex flex-col gap-2">
-          <h3 className="font-display text-xl font-bold tracking-tight">We got your request!</h3>
+          <h3 className="font-display text-xl font-bold tracking-tight text-foreground">
+            We got your request!
+          </h3>
           <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
             We&apos;ll review your event details and follow up within 1–2 business days.
           </p>
@@ -169,7 +173,7 @@ export function ContactForm() {
         <button
           type="button"
           onClick={() => setState("idle")}
-          className="text-sm font-medium text-gold-strong underline-offset-4 transition-colors hover:underline"
+          className="rounded-md text-sm font-medium text-gold-strong underline-offset-4 transition-colors hover:underline"
         >
           Submit another request
         </button>
@@ -293,21 +297,23 @@ export function ContactForm() {
                 onClick={() => toggleService(service)}
                 aria-pressed={checked}
                 className={cn(
-                  "flex items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-all duration-150",
+                  "flex items-center gap-3 rounded-md border px-4 py-3 text-left text-sm font-medium transition-colors duration-150",
                   checked
-                    ? "border-gold/60 bg-gold/8 text-foreground ring-1 ring-gold/30"
-                    : "border-border bg-card text-muted-foreground hover:border-gold/30 hover:text-foreground",
+                    ? "border-gold bg-muted text-foreground"
+                    : "border-border bg-card text-muted-foreground hover:border-gold hover:text-foreground",
                 )}
               >
                 <span
                   className={cn(
-                    "flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors",
-                    checked ? "border-gold bg-gold" : "border-border bg-background",
+                    "flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border transition-colors",
+                    checked
+                      ? "border-gold-strong bg-gold-strong"
+                      : "border-border bg-background",
                   )}
                   aria-hidden
                 >
                   {checked && (
-                    <svg viewBox="0 0 10 8" className="h-2.5 w-2.5 fill-gold-ink" aria-hidden>
+                    <svg viewBox="0 0 10 8" className="h-2.5 w-2.5 text-gold-ink" aria-hidden>
                       <path d="M1 4l2.5 2.5L9 1" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   )}
@@ -366,8 +372,11 @@ export function ContactForm() {
 
       {/* Submit */}
       {state === "error" && (
-        <div className="flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/8 px-4 py-3 text-sm text-destructive">
-          <AlertCircle className="h-4 w-4 shrink-0" />
+        <div
+          role="alert"
+          className="flex flex-wrap items-center gap-2 rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+        >
+          <AlertCircle className="h-4 w-4 shrink-0" aria-hidden />
           Something went wrong. Please try again or email us at{" "}
           <a href="mailto:onetalentproductions@gmail.com" className="underline">
             onetalentproductions@gmail.com

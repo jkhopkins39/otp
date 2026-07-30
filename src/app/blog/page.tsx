@@ -18,16 +18,10 @@ export default async function BlogPage() {
   return (
     <>
       <PageHeader
-        eyebrow="News & updates"
-        title={
-          <>
-            News and updates from{" "}
-            <span className="text-gradient-gold">One Talent</span>.
-          </>
-        }
+        title="News and updates from One Talent."
         description="Production updates and field notes from our AV and event production work across West Georgia."
       />
-      <Section className="pt-4 sm:pt-5 lg:pt-6 pb-16 sm:pb-20 lg:pb-24">
+      <Section className="pt-10 sm:pt-12 lg:pt-14 pb-16 sm:pb-20 lg:pb-24">
         <PostFeed posts={posts} />
       </Section>
     </>

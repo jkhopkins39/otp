@@ -18,17 +18,11 @@ export default async function PortfolioPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Client reviews"
-        title={
-          <>
-            What our{" "}
-            <span className="text-gradient-gold">clients</span> say.
-          </>
-        }
+        title="What our clients say."
         description="Reviews from churches, venues, and event teams we have worked with across Georgia."
       />
 
-      <Section className="pt-6 sm:pt-8 lg:pt-10">
+      <Section className="pt-10 sm:pt-12 lg:pt-14">
         {testimonials.length > 0 ? (
           <Testimonials testimonials={testimonials} />
         ) : (

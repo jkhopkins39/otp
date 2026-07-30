@@ -31,20 +31,20 @@ export function HeroLatestPost({ post }: { post: Post }) {
     expanded || !long ? paragraphs : paragraphs.slice(0, MAX_PARAGRAPHS);
 
   return (
-    <article className="relative flex max-h-[min(62vh,560px)] flex-col overflow-hidden rounded-2xl border border-gold/30 surface-card shadow-gold-lg ring-1 ring-gold/10">
-      <div className="absolute inset-x-0 top-0 h-0.5 bg-brand-gradient opacity-80" aria-hidden />
+    <article className="relative flex max-h-[min(62vh,560px)] flex-col overflow-hidden rounded-2xl border border-border surface-card shadow-soft">
+      <div className="h-[3px] shrink-0 bg-gold" aria-hidden />
 
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-5 sm:p-6">
         <div className="flex flex-col gap-2">
-          <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-gold/35 px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.16em] text-gold-strong">
-            <Newspaper className="h-3 w-3" aria-hidden />
+          <span className="inline-flex w-fit items-center gap-1.5 text-sm font-semibold text-gold-strong">
+            <Newspaper className="h-4 w-4" aria-hidden />
             Latest from the blog
           </span>
           <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-            <CalendarDays className="h-3.5 w-3.5 text-gold" aria-hidden />
+            <CalendarDays className="h-3.5 w-3.5" aria-hidden />
             {formatDate(post.createdAt)}
           </span>
-          <h2 className="font-display text-xl font-bold leading-tight tracking-tight sm:text-2xl">
+          <h2 className="font-display text-xl font-bold leading-tight tracking-tight text-foreground sm:text-2xl">
             {post.title}
           </h2>
         </div>
@@ -69,7 +69,7 @@ export function HeroLatestPost({ post }: { post: Post }) {
                 type="button"
                 onClick={() => setExpanded((v) => !v)}
                 aria-expanded={expanded}
-                className="inline-flex w-fit items-center gap-1 text-sm font-semibold text-gold-strong transition-colors hover:text-gold"
+                className="inline-flex w-fit items-center gap-1 rounded-md text-sm font-semibold text-gold-strong underline-offset-4 transition-colors hover:underline"
               >
                 {expanded ? "Show less" : "Read more"}
                 <ChevronDown
@@ -87,7 +87,7 @@ export function HeroLatestPost({ post }: { post: Post }) {
       <div className="shrink-0 border-t border-border px-5 py-3 sm:px-6">
         <Link
           href="/blog"
-          className="inline-flex items-center gap-1.5 text-sm font-semibold text-gold-strong transition-colors hover:text-gold"
+          className="inline-flex items-center gap-1.5 rounded-md text-sm font-semibold text-gold-strong underline-offset-4 transition-colors hover:underline"
         >
           All posts
           <ArrowRight className="h-4 w-4" />
@@ -100,18 +100,20 @@ export function HeroLatestPost({ post }: { post: Post }) {
 export function HeroLatestPostEmpty() {
   return (
     <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-border surface-card px-6 py-12 text-center shadow-soft">
-      <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gold/10 text-gold">
+      <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-muted text-gold-strong">
         <Newspaper className="h-6 w-6" />
       </span>
       <div className="flex flex-col gap-1">
-        <p className="font-display text-lg font-bold">No posts yet</p>
+        <p className="font-display text-lg font-bold text-foreground">
+          No posts yet
+        </p>
         <p className="text-sm text-muted-foreground">
           Field notes and updates will show up here.
         </p>
       </div>
       <Link
         href="/blog"
-        className="inline-flex items-center gap-1.5 text-sm font-semibold text-gold-strong transition-colors hover:text-gold"
+        className="inline-flex items-center gap-1.5 rounded-md text-sm font-semibold text-gold-strong underline-offset-4 transition-colors hover:underline"
       >
         Visit the blog
         <ArrowRight className="h-4 w-4" />

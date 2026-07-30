@@ -34,7 +34,7 @@ export function ClientMarquee({ venues }: { venues: DbVenue[] }) {
         {row.map((name, i) => (
           <li
             key={`${name}-${i}`}
-            className="font-display text-xl font-semibold text-muted-foreground/80 transition-colors hover:text-gold"
+            className="font-display text-xl font-semibold text-muted-foreground transition-colors hover:text-foreground"
           >
             {name}
           </li>

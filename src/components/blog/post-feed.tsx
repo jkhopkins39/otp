@@ -34,11 +34,11 @@ export function PostFeed({
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="inline-flex items-center gap-2 font-display text-xl font-bold">
-          <FileText className="h-5 w-5 text-gold" />
+        <h2 className="inline-flex items-center gap-2 font-display text-xl font-bold text-foreground">
+          <FileText className="h-5 w-5 text-gold-strong" aria-hidden />
           Posts
         </h2>
-        <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+        <span className="rounded-md border border-border bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
           {posts.length} {posts.length === 1 ? "post" : "posts"}
         </span>
       </div>
@@ -50,11 +50,11 @@ export function PostFeed({
       )}
 
       {posts.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border surface-readable px-6 py-16 text-center">
-          <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gold/10 text-gold">
-            <Inbox className="h-7 w-7" />
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border surface-card px-6 py-16 text-center">
+          <span className="inline-flex h-14 w-14 items-center justify-center rounded-xl border border-border bg-muted text-gold-strong">
+            <Inbox className="h-7 w-7" aria-hidden />
           </span>
-          <p className="font-display text-lg font-bold">No posts yet</p>
+          <p className="font-display text-lg font-bold text-foreground">No posts yet</p>
           <p className="max-w-sm text-sm text-muted-foreground">
             {admin
               ? "Publish your first post using the form."

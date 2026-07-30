@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Sora } from "next/font/google";
+import { IBM_Plex_Sans, Bricolage_Grotesque } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { ThemeScript } from "@/components/theme/theme-script";
@@ -10,17 +10,18 @@ import { SiteBackground } from "@/components/layout/site-background";
 import { site } from "@/lib/content";
 import { hoppyTechWebDeveloperAttributionJsonLd } from "@/lib/hoppy-tech-schema";
 
-const inter = Inter({
+const plexSans = IBM_Plex_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
+  weight: ["400", "500", "600"],
 });
 
-const sora = Sora({
+const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
   variable: "--font-display",
   display: "swap",
-  weight: ["500", "600", "700", "800"],
+  weight: ["600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -42,8 +43,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fffdf7" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0807" },
+    { media: "(prefers-color-scheme: light)", color: "#FAFBFC" },
+    { media: "(prefers-color-scheme: dark)", color: "#101316" },
   ],
 };
 
@@ -51,7 +52,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${sora.variable}`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${plexSans.variable} ${bricolage.variable}`}
+    >
       <head>
         <ThemeScript />
       </head>
@@ -60,7 +65,7 @@ export default function RootLayout({
           <SiteBackground />
           <a
             href="#main"
-            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-card focus:px-4 focus:py-2 focus:text-sm focus:shadow-lift focus:ring-2 focus:ring-ring"
+            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:border focus:border-border focus:bg-card focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow-lift focus:ring-2 focus:ring-ring"
           >
             Skip to content
           </a>

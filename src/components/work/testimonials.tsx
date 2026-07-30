@@ -9,10 +9,10 @@ export function Testimonials({ testimonials }: { testimonials: DbTestimonial[] }
       {testimonials.map((t) => (
         <li
           key={t.id}
-          className="relative flex flex-col gap-5 rounded-2xl border border-border surface-card p-7 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-gold/40 hover:shadow-lift"
+          className="relative flex flex-col gap-5 rounded-2xl border border-border surface-card p-7 shadow-soft transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-gold hover:shadow-lift motion-reduce:hover:translate-y-0"
         >
           <div className="flex items-center justify-between">
-            <Quote className="h-8 w-8 text-gold/60" />
+            <Quote className="h-7 w-7 text-gold" aria-hidden />
             <div className="flex gap-0.5" aria-label="5 out of 5 stars">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star key={i} className="h-4 w-4 fill-gold text-gold" aria-hidden />
@@ -23,14 +23,14 @@ export function Testimonials({ testimonials }: { testimonials: DbTestimonial[] }
             &ldquo;{t.quote}&rdquo;
           </blockquote>
           <figcaption className="mt-auto flex items-center gap-3 border-t border-border pt-5">
-            <span className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-gradient font-display text-sm font-bold text-gold-ink">
+            <span className="flex h-11 w-11 items-center justify-center rounded-md bg-gold-strong font-display text-sm font-bold text-gold-ink">
               {t.author_name
                 .split(" ")
                 .map((n) => n[0])
                 .join("")}
             </span>
             <span className="flex flex-col">
-              <span className="font-semibold">{t.author_name}</span>
+              <span className="font-semibold text-foreground">{t.author_name}</span>
               <span className="text-sm text-muted-foreground">{t.author_role}</span>
             </span>
           </figcaption>

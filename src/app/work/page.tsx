@@ -12,14 +12,12 @@ export const metadata: Metadata = {
     "Recent AV, sound, lighting, live streaming, and event production projects from One Talent Productions in West Georgia.",
 };
 
-const ACCENTS = [
-  "from-amber-400 via-orange-500 to-rose-500",
-  "from-yellow-300 via-amber-500 to-orange-600",
-  "from-sky-400 via-blue-500 to-indigo-600",
-  "from-emerald-400 via-teal-500 to-cyan-600",
-  "from-purple-400 via-violet-500 to-indigo-500",
-  "from-rose-400 via-pink-500 to-fuchsia-600",
-];
+/**
+ * Placeholder tint for projects with no image. Flat neutrals derived from the
+ * palette (the old purple/emerald/rose gradients were off-brand); the accent
+ * shows up as a corner rule inside ProjectCard instead.
+ */
+const ACCENTS = ["bg-muted", "bg-card", "bg-background"];
 
 export default async function WorkPage() {
   const jobs = await listJobs();
@@ -33,17 +31,11 @@ export default async function WorkPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Our work"
-        title={
-          <>
-            Recent{" "}
-            <span className="text-gradient-gold">projects</span>.
-          </>
-        }
+        title="Recent projects."
         description="AV production, live streaming, sound, lighting, and event tech — here's what we've been working on."
       />
 
-      <Section className="pt-6 pb-16 sm:pt-8 sm:pb-20 lg:pt-10">
+      <Section className="pt-10 pb-16 sm:pt-12 sm:pb-20 lg:pt-14">
         {sorted.length === 0 ? (
           <p className="text-center text-muted-foreground">Projects coming soon.</p>
         ) : (

@@ -7,11 +7,7 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative mt-10 overflow-hidden border-t border-border surface-readable">
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-brand-gradient"
-        aria-hidden
-      />
+    <footer className="relative mt-10 border-t border-border surface-readable">
       <div className="container py-16">
         <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr]">
           <div className="flex flex-col gap-5">
@@ -26,7 +22,7 @@ export function Footer() {
                   href={s.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-full border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-gold/50 hover:text-foreground"
+                  className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-gold hover:text-foreground"
                 >
                   {s.label}
                 </a>
@@ -35,9 +31,7 @@ export function Footer() {
           </div>
 
           <nav aria-label="Footer" className="flex flex-col gap-3">
-            <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-gold-strong">
-              Explore
-            </h3>
+            <h3 className="font-display text-sm font-bold text-foreground">Explore</h3>
             {nav.map((item) => (
               <Link
                 key={item.href}
@@ -51,25 +45,23 @@ export function Footer() {
           </nav>
 
           <div className="flex flex-col gap-3">
-            <h3 className="text-xs font-semibold uppercase tracking-[0.18em] text-gold-strong">
-              Contact
-            </h3>
+            <h3 className="font-display text-sm font-bold text-foreground">Contact</h3>
             <a
               href={`mailto:${site.email}`}
               className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
-              <Mail className="h-4 w-4 text-gold" />
+              <Mail className="h-4 w-4 text-gold-strong" aria-hidden />
               {site.email}
             </a>
             <a
               href={`tel:${site.phone.replace(/[^\d+]/g, "")}`}
               className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
-              <Phone className="h-4 w-4 text-gold" />
+              <Phone className="h-4 w-4 text-gold-strong" aria-hidden />
               {site.phone}
             </a>
             <span className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-              <MapPin className="h-4 w-4 text-gold" />
+              <MapPin className="h-4 w-4 text-gold-strong" aria-hidden />
               {site.location}
             </span>
           </div>
@@ -92,7 +84,7 @@ export function Footer() {
               href="https://www.hoppytech.com/?utm_source=otp"
               target="_blank"
               rel="noopener"
-              className="font-medium text-gold-strong underline-offset-4 transition-colors hover:text-gold hover:underline"
+              className="rounded-md font-medium text-gold-strong underline-offset-4 transition-colors hover:underline"
             >
               Hoppy Tech
             </a>

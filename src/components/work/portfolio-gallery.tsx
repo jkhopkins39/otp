@@ -42,7 +42,7 @@ export function PortfolioGallery() {
                 aria-selected={isActive}
                 onClick={() => setActive(cat)}
                 className={cn(
-                  "relative rounded-full px-4 py-2 text-sm font-medium transition-colors",
+                  "relative rounded-md px-4 py-2 text-sm font-medium transition-colors",
                   isActive
                     ? "text-gold-ink"
                     : "text-muted-foreground hover:text-foreground",
@@ -56,10 +56,10 @@ export function PortfolioGallery() {
                         ? { duration: 0 }
                         : { type: "spring", stiffness: 400, damping: 32 }
                     }
-                    className="absolute inset-0 -z-10 rounded-full bg-brand-gradient shadow-gold"
+                    className="absolute inset-0 -z-10 rounded-md bg-gold-strong"
                   />
                 ) : (
-                  <span className="absolute inset-0 -z-10 rounded-full border border-border" />
+                  <span className="absolute inset-0 -z-10 rounded-md border border-border" />
                 )}
                 {cat}
               </button>

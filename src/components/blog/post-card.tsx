@@ -14,8 +14,8 @@ import { riseItem } from "@/components/ui/motion";
 import { cn } from "@/lib/utils";
 
 const inputBase =
-  "w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground " +
-  "placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:border-gold/60 transition-colors";
+  "w-full rounded-md border border-border bg-background px-3.5 py-2.5 text-sm text-foreground " +
+  "placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-ring focus:border-gold transition-colors";
 
 export function PostCard({
   post,
@@ -91,15 +91,12 @@ export function PostCard({
       className="group relative overflow-hidden rounded-2xl border border-border surface-card shadow-soft transition-shadow hover:shadow-lift"
     >
       {post.featured && !isEditing && (
-        <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-gold/15 px-2 py-0.5 text-xs font-semibold text-gold-strong ring-1 ring-gold/30">
-          <Star className="h-3 w-3 fill-gold-strong" />
+        <div className="absolute right-3 top-4 flex items-center gap-1 rounded-md border border-border bg-muted px-2 py-0.5 text-xs font-semibold text-gold-strong">
+          <Star className="h-3 w-3 fill-current" aria-hidden />
           Featured
         </div>
       )}
-      <div
-        className="absolute inset-x-0 top-0 h-0.5 bg-brand-gradient opacity-60"
-        aria-hidden
-      />
+      <div className="h-[3px] w-full bg-gold" aria-hidden />
 
       {isEditing ? (
         <div className="flex flex-col gap-4 p-6">
@@ -108,7 +105,7 @@ export function PostCard({
             <button
               type="button"
               onClick={() => setIsEditing(false)}
-              className="rounded-full border border-border p-1.5 text-muted-foreground transition-colors hover:border-gold/50 hover:text-foreground"
+              className="rounded-md border border-border p-1.5 text-muted-foreground transition-colors hover:border-gold hover:text-foreground"
             >
               <X className="h-4 w-4" />
             </button>
@@ -117,12 +114,12 @@ export function PostCard({
           <div>
             <label className="mb-1.5 block text-sm font-medium">Title</label>
             <input
-              className={cn(inputBase, editErrors.title ? "border-red-400" : "")}
+              className={cn(inputBase, editErrors.title ? "border-destructive" : "")}
               value={editTitle}
               onChange={e => setEditTitle(e.target.value)}
               placeholder="Post title"
             />
-            {editErrors.title && <p className="mt-1 text-xs text-red-500">{editErrors.title}</p>}
+            {editErrors.title && <p className="mt-1 text-xs text-destructive">{editErrors.title}</p>}
           </div>
 
           <div>
@@ -141,13 +138,13 @@ export function PostCard({
             <div className="relative">
               <Youtube className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
-                className={cn(inputBase, "pl-10", editErrors.video ? "border-red-400" : editVideoId ? "border-gold/60" : "")}
+                className={cn(inputBase, "pl-10", editErrors.video ? "border-destructive" : editVideoId ? "border-gold" : "")}
                 value={editVideoInput}
                 onChange={e => setEditVideoInput(e.target.value)}
                 placeholder="https://youtube.com/watch?v=…"
               />
             </div>
-            {editErrors.video && <p className="mt-1 text-xs text-red-500">{editErrors.video}</p>}
+            {editErrors.video && <p className="mt-1 text-xs text-destructive">{editErrors.video}</p>}
             {editVideoId && (
               <div className="mt-3">
                 <YouTubeEmbed videoId={editVideoId} title="Preview" />
@@ -155,15 +152,15 @@ export function PostCard({
             )}
           </div>
 
-          {editErrors.content && <p className="text-sm text-red-500">{editErrors.content}</p>}
-          {editError && <p className="text-sm text-red-500">{editError}</p>}
+          {editErrors.content && <p className="text-sm text-destructive">{editErrors.content}</p>}
+          {editError && <p className="text-sm text-destructive">{editError}</p>}
 
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handleSave}
               disabled={isPending}
-              className="inline-flex items-center gap-1.5 rounded-full bg-brand-gradient px-4 py-2 text-sm font-medium text-gold-ink shadow-gold transition-all hover:-translate-y-0.5 disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 rounded-md bg-gold-strong px-4 py-2 text-sm font-medium text-gold-ink transition-colors hover:bg-gold-hover disabled:opacity-60"
             >
               <Check className="h-4 w-4" />
               {isPending ? "Saving…" : "Save changes"}
@@ -171,7 +168,7 @@ export function PostCard({
             <button
               type="button"
               onClick={() => setIsEditing(false)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-gold/50 hover:text-foreground"
+              className="inline-flex items-center gap-1.5 rounded-md border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-gold hover:text-foreground"
             >
               Cancel
             </button>
@@ -182,10 +179,10 @@ export function PostCard({
           <div className="flex items-start justify-between gap-4">
             <div className="flex flex-col gap-2">
               <span className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                <CalendarDays className="h-3.5 w-3.5 text-gold" />
+                <CalendarDays className="h-3.5 w-3.5" aria-hidden />
                 {formatDate(post.createdAt)}
               </span>
-              <h3 className="font-display text-2xl font-bold leading-tight tracking-tight">
+              <h3 className="font-display text-2xl font-bold leading-tight tracking-tight text-foreground">
                 {post.title}
               </h3>
             </div>
@@ -198,10 +195,10 @@ export function PostCard({
                     onClick={() => onToggleFeatured(post.id)}
                     aria-label={post.featured ? "Remove featured" : "Feature this post on the homepage"}
                     title={post.featured ? "Remove featured" : "Set as homepage featured post"}
-                    className={`rounded-full border p-2 transition-all ${
+                    className={`rounded-md border p-2 transition-all ${
                       post.featured
-                        ? "border-gold/50 text-gold-strong"
-                        : "border-border text-muted-foreground hover:border-gold/50 hover:text-gold-strong"
+                        ? "border-gold text-gold-strong"
+                        : "border-border text-muted-foreground hover:border-gold hover:text-gold-strong"
                     }`}
                   >
                     <Star className={`h-4 w-4 ${post.featured ? "fill-gold-strong" : ""}`} />
@@ -213,7 +210,7 @@ export function PostCard({
                       type="button"
                       onClick={openEdit}
                       aria-label={`Edit post: ${post.title}`}
-                      className="rounded-full border border-border p-2 text-muted-foreground transition-all hover:border-gold/50 hover:text-foreground"
+                      className="rounded-md border border-border p-2 text-muted-foreground transition-colors hover:border-gold hover:text-foreground"
                     >
                       <Pencil className="h-4 w-4" />
                     </button>
@@ -221,7 +218,7 @@ export function PostCard({
                       type="button"
                       onClick={() => onDelete(post.id)}
                       aria-label={`Delete post: ${post.title}`}
-                      className="rounded-full border border-border p-2 text-muted-foreground transition-all hover:border-red-400/50 hover:text-red-500"
+                      className="rounded-md border border-border p-2 text-muted-foreground transition-colors hover:border-destructive hover:text-destructive"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -251,7 +248,7 @@ export function PostCard({
                   type="button"
                   onClick={() => setExpanded((v) => !v)}
                   aria-expanded={expanded}
-                  className="inline-flex w-fit items-center gap-1 text-sm font-semibold text-gold-strong transition-colors hover:text-gold"
+                  className="inline-flex w-fit items-center gap-1 rounded-md text-sm font-semibold text-gold-strong underline-offset-4 transition-colors hover:underline"
                 >
                   {expanded ? "Show less" : "Read more"}
                   <ChevronDown

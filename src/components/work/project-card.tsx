@@ -1,39 +1,67 @@
 import { Star } from "lucide-react";
 import type { Project } from "@/lib/content";
 
+/**
+ * `project.accent` is now a flat neutral surface class (see work/page.tsx) —
+ * it only paints the image-less placeholder tile, which also gets an accent
+ * corner rule so the card still carries the brand signal.
+ */
 export function ProjectCard({ project }: { project: Project }) {
   return (
-    <article className="group relative overflow-hidden rounded-2xl border border-border surface-card shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-lift">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-border surface-card shadow-soft transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-gold hover:shadow-lift motion-reduce:hover:translate-y-0">
       <div
-        className={`relative aspect-[4/3] overflow-hidden ${project.image_url ? "bg-muted" : `bg-gradient-to-br ${project.accent}`}`}
+        className={`relative aspect-[4/3] overflow-hidden border-b border-border ${
+          project.image_url ? "bg-muted" : project.accent
+        }`}
       >
-        <div className="grain" aria-hidden />
-        {project.image_url && (
+        {project.image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={project.image_url}
             alt={project.title}
             className="absolute inset-0 h-full w-full object-cover"
           />
+        ) : (
+          <span
+            className="absolute left-0 top-0 h-12 w-[3px] bg-gold"
+            aria-hidden
+          />
         )}
-        <span className="absolute left-4 top-4 rounded-full bg-black/25 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white backdrop-blur">
+
+        <span
+          className={`absolute left-3 top-3 rounded-md px-2.5 py-1 text-xs font-semibold ${
+            project.image_url
+              ? "bg-foreground/80 text-background backdrop-blur-sm"
+              : "bg-card text-muted-foreground"
+          }`}
+        >
           {project.category}
         </span>
-        <span className="absolute right-4 top-4 rounded-full bg-black/25 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+        <span
+          className={`absolute right-3 top-3 rounded-md px-2.5 py-1 text-xs font-semibold tabular-nums ${
+            project.image_url
+              ? "bg-foreground/80 text-background backdrop-blur-sm"
+              : "bg-card text-muted-foreground"
+          }`}
+        >
           {project.year}
         </span>
+
         {project.featured && (
-          <span className="absolute bottom-3 right-3 inline-flex items-center gap-1 rounded-full bg-gold/90 px-2.5 py-1 text-xs font-semibold text-gold-ink shadow-gold backdrop-blur">
-            <Star className="h-3 w-3 fill-gold-ink" />
+          <span className="absolute bottom-3 right-3 inline-flex items-center gap-1 rounded-md bg-gold-strong px-2.5 py-1 text-xs font-semibold text-gold-ink">
+            <Star className="h-3 w-3 fill-current" aria-hidden />
             Featured
           </span>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
       </div>
 
-      <div className="flex flex-col gap-2 p-5">
-        <h3 className="font-display text-xl font-bold tracking-tight">{project.title}</h3>
-        <p className="text-sm leading-relaxed text-muted-foreground">{project.blurb}</p>
+      <div className="flex flex-1 flex-col gap-2 p-5">
+        <h3 className="font-display text-xl font-bold tracking-tight text-foreground">
+          {project.title}
+        </h3>
+        <p className="text-sm leading-relaxed text-muted-foreground">
+          {project.blurb}
+        </p>
       </div>
     </article>
   );

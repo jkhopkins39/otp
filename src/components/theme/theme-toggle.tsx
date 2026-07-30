@@ -24,8 +24,8 @@ export function ThemeToggle({ className }: { className?: string }) {
       title={`Switch to ${isDark ? "light" : "dark"} mode`}
       onClick={toggleTheme}
       className={cn(
-        "relative inline-flex h-9 w-[4.25rem] shrink-0 items-center rounded-full border border-border",
-        "bg-muted/70 p-1 transition-colors hover:border-gold/50",
+        "relative inline-flex h-9 w-[4.25rem] shrink-0 items-center rounded-md border border-border",
+        "bg-muted p-1 transition-colors hover:border-gold",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         className,
       )}
@@ -41,7 +41,7 @@ export function ThemeToggle({ className }: { className?: string }) {
       {/* Sliding knob — absolute + translateX only; no layout prop */}
       <motion.span
         aria-hidden
-        className="absolute top-1 left-1 z-10 flex h-7 w-7 items-center justify-center rounded-full bg-brand-gradient text-gold-ink shadow-gold"
+        className="absolute top-1 left-1 z-10 flex h-7 w-7 items-center justify-center rounded-sm bg-gold-strong text-gold-ink"
         animate={{ x: isDark ? 32 : 0 }}
         transition={
           reduce
