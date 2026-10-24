@@ -21,12 +21,10 @@ const hoppyTechOrganizationNode = {
     url: "https://www.hoppytech.com/WebsiteLogo.png?v=4",
   },
   email: "jeremy@hoppytech.com",
-  telephone: "+1-770-686-6503",
   contactPoint: {
     "@type": "ContactPoint",
     contactType: "customer service",
     email: "jeremy@hoppytech.com",
-    telephone: "+1-770-686-6503",
     areaServed: "US",
     availableLanguage: "English",
   },
