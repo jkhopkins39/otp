@@ -1,11 +1,52 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { z } from "zod";
 import { insertContactSubmission } from "@/lib/site-store";
+import { isSpamSubmission } from "@/lib/spam-guard";
 import {
   getClientIpFromHeaders,
-  isRateLimited,
-  isSpamSubmission,
-} from "@/lib/spam-guard";
+  guardFormSubmission,
+} from "@/lib/security/apiUsageGuard";
+import { prefilter, hasMildProfanity } from "@/lib/security/contentFilter";
+import { createScreener } from "@/lib/security/createScreener";
+import { getSubjectPrompt } from "@/lib/security/subjectPrompts";
+
+const contactSchema = z.object({
+  full_name: z.string().trim().max(120).default(""),
+  email: z.string().trim().email().max(254),
+  phone: z.string().trim().min(7).max(40),
+  event_type: z.string().trim().max(120).default(""),
+  event_date: z.string().trim().max(80).default(""),
+  venue: z.string().trim().max(200).default(""),
+  expected_attendance: z.string().trim().max(80).default(""),
+  venue_type: z.string().trim().max(80).default(""),
+  services: z.string().trim().max(500).default(""),
+  setup_window: z.string().trim().max(120).default(""),
+  budget_range: z.string().trim().max(120).default(""),
+  referral_source: z.string().trim().max(120).default(""),
+  additional_details: z.string().trim().max(5000).default(""),
+});
+
+const screenSubmission = createScreener({
+  businessName: "One Talent Productions",
+  systemPrompt: getSubjectPrompt("otp"),
+  fieldOrder: [
+    "full_name",
+    "email",
+    "phone",
+    "event_type",
+    "event_date",
+    "venue",
+    "expected_attendance",
+    "venue_type",
+    "services",
+    "setup_window",
+    "budget_range",
+    "referral_source",
+    "additional_details",
+  ],
+  freeTextKeys: ["additional_details", "full_name", "venue"],
+});
 
 // ── Email HTML builder ───────────────────────────────────────────
 
@@ -85,8 +126,9 @@ function buildEmailHtml(b: Record<string, string>): string {
 
 export async function POST(req: Request) {
   const ip = getClientIpFromHeaders(req.headers);
-  if (isRateLimited(ip)) {
-    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  const usage = guardFormSubmission(ip);
+  if (!usage.ok) {
+    return NextResponse.json({ error: usage.error }, { status: usage.status });
   }
 
   let body: Record<string, string | number>;
@@ -109,32 +151,42 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true });
   }
 
-  const email = String(body.email ?? "").trim();
-  const phone = String(body.phone ?? "").trim();
-
-  if (!email || !phone) {
-    return NextResponse.json({ error: "Email and phone are required" }, { status: 400 });
+  const parsed = contactSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ error: "Please check the form and try again." }, { status: 400 });
   }
 
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
-  }
+  const submission = parsed.data;
 
-  const submission = {
-    full_name: String(body.full_name ?? ""),
-    email: String(body.email ?? ""),
-    phone: String(body.phone ?? ""),
-    event_type: String(body.event_type ?? ""),
-    event_date: String(body.event_date ?? ""),
-    venue: String(body.venue ?? ""),
-    expected_attendance: String(body.expected_attendance ?? ""),
-    venue_type: String(body.venue_type ?? ""),
-    services: String(body.services ?? ""),
-    setup_window: String(body.setup_window ?? ""),
-    budget_range: String(body.budget_range ?? ""),
-    referral_source: String(body.referral_source ?? ""),
-    additional_details: String(body.additional_details ?? ""),
-  };
+  const blocked = prefilter(submission, [
+    "full_name",
+    "venue",
+    "additional_details",
+    "services",
+    "event_type",
+  ]);
+  const screening = blocked
+    ? {
+        decision: "reject" as const,
+        category: blocked.category,
+        confidence: 100,
+        reason: blocked.reason,
+        screened: true,
+      }
+    : await screenSubmission(submission, {
+        mildProfanity: hasMildProfanity(submission, [
+          "full_name",
+          "venue",
+          "additional_details",
+        ]),
+      });
+
+  if (screening.decision === "reject") {
+    console.warn(
+      `[contact] rejected [${screening.category}] from ${ip}: ${screening.reason}`,
+    );
+    return NextResponse.json({ success: true });
+  }
 
   try {
     await insertContactSubmission(submission);
@@ -146,7 +198,6 @@ export async function POST(req: Request) {
     );
   }
 
-  // 2 — Send email via Resend (required)
   const resendKey = process.env.RESEND_API_KEY?.trim();
   if (!resendKey) {
     console.error("[contact] RESEND_API_KEY is not configured.");
@@ -161,9 +212,9 @@ export async function POST(req: Request) {
     const { error } = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL ?? "contact@onetalentproductions.com",
       to: process.env.RESEND_TO_EMAIL ?? "onetalentproductions@gmail.com",
-      replyTo: email,
-      subject: `New Event Inquiry${String(body.full_name ?? "").trim() ? ` from ${String(body.full_name).trim()}` : ""}`,
-      html: buildEmailHtml(body as Record<string, string>),
+      replyTo: submission.email,
+      subject: `New Event Inquiry${submission.full_name.trim() ? ` from ${submission.full_name.trim()}` : ""}`,
+      html: buildEmailHtml(submission),
     });
     if (error) {
       console.error("Resend error:", error);

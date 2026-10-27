@@ -1,23 +1,26 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { envSupabasePublishableKey, envSupabaseUrl } from "@/lib/env";
+
+const PORTAL = "https://hoppytech.com/portal";
+const TENANT = "otp";
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const pathname = request.nextUrl.pathname;
+  const isCallbackPage = pathname === "/admin/auth/callback";
+  const url = envSupabaseUrl();
+  const key = envSupabasePublishableKey();
 
-  if (!pathname.startsWith("/admin")) return NextResponse.next();
-  if (pathname === "/admin/auth/callback") return NextResponse.next();
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-
-  if (!supabaseUrl || !supabaseKey) {
-    return NextResponse.redirect("https://hoppytech.com/portal");
+  // Without Supabase env, don't crash — send admin traffic to the portal.
+  if (!url || !key) {
+    if (isCallbackPage) return NextResponse.next({ request });
+    return NextResponse.redirect(PORTAL);
   }
 
   let supabaseResponse = NextResponse.next({ request });
 
-  const supabase = createServerClient(supabaseUrl, supabaseKey, {
+  const supabase = createServerClient(url, key, {
     cookies: {
       getAll() {
         return request.cookies.getAll();
@@ -26,7 +29,11 @@ export async function middleware(request: NextRequest) {
         cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
         supabaseResponse = NextResponse.next({ request });
         cookiesToSet.forEach(({ name, value, options }) =>
-          supabaseResponse.cookies.set(name, value, { ...options, maxAge: undefined, expires: undefined }),
+          supabaseResponse.cookies.set(name, value, {
+            ...options,
+            maxAge: undefined,
+            expires: undefined,
+          }),
         );
       },
     },
@@ -36,14 +43,16 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    return NextResponse.redirect("https://hoppytech.com/portal");
-  }
+  // Always allow the portal handoff route through (after refreshing cookies).
+  if (isCallbackPage) return supabaseResponse;
 
-  const tenant = user.app_metadata?.tenant as string | undefined;
-  const role = user.app_metadata?.role as string | undefined;
-  if (tenant !== "otp" && role !== "agency_owner") {
-    return NextResponse.redirect("https://hoppytech.com/portal");
+  if (user) {
+    const tenant = user.app_metadata?.tenant as string | undefined;
+    const role = user.app_metadata?.role as string | undefined;
+    const authorised = tenant === TENANT || role === "agency_owner";
+    if (!authorised) return NextResponse.redirect(PORTAL);
+  } else {
+    return NextResponse.redirect(PORTAL);
   }
 
   return supabaseResponse;

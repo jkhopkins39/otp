@@ -1,56 +1,59 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { envSupabasePublishableKey, envSupabaseUrl } from "@/lib/env";
 
 /**
- * Receives access_token + refresh_token from the central Hoppy Tech portal
- * and exchanges them for a local Supabase session stored in cookies.
+ * Portal SSO handoff (same pattern as Watch Trading Post).
+ * Receives access_token + refresh_token from hoppytech.com/portal and sets
+ * session cookies on the redirect response so middleware can see them.
  */
-export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url);
-  const access_token = searchParams.get("access_token");
-  const refresh_token = searchParams.get("refresh_token");
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const accessToken = searchParams.get("access_token");
+  const refreshToken = searchParams.get("refresh_token");
 
-  if (!access_token || !refresh_token) {
-    return NextResponse.redirect(`${origin}/admin/login?error=missing_tokens`);
-  }
+  const fail = (error: string) =>
+    NextResponse.redirect(new URL(`/admin/login?error=${encodeURIComponent(error)}`, request.url));
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  if (!accessToken || !refreshToken) return fail("invalid_session");
 
-  if (!supabaseUrl || !supabaseKey) {
-    return NextResponse.redirect(`${origin}/admin/login?setup=1`);
-  }
+  const supabaseUrl = envSupabaseUrl();
+  const supabaseKey = envSupabasePublishableKey();
+  if (!supabaseUrl || !supabaseKey) return fail("setup");
 
-  const cookieStore = await cookies();
+  const successPath = "/admin";
+  let response = NextResponse.redirect(new URL(successPath, request.url));
+
   const supabase = createServerClient(supabaseUrl, supabaseKey, {
     cookies: {
       getAll() {
-        return cookieStore.getAll();
+        return request.cookies.getAll();
       },
       setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
+        response = NextResponse.redirect(new URL(successPath, request.url));
         cookiesToSet.forEach(({ name, value, options }) =>
-          cookieStore.set(name, value, { ...options, maxAge: undefined, expires: undefined }),
+          response.cookies.set(name, value, { ...options, maxAge: undefined, expires: undefined }),
         );
       },
     },
   });
 
-  // Verify token and check tenant before setting any session cookie
-  const { data: { user: tokenUser }, error: userError } = await supabase.auth.getUser(access_token);
-  if (userError || !tokenUser) {
-    return NextResponse.redirect(`${origin}/admin/login?error=invalid_session`);
-  }
+  const {
+    data: { user: tokenUser },
+    error: userError,
+  } = await supabase.auth.getUser(accessToken);
+  if (userError || !tokenUser) return fail("invalid_session");
+
   const tenant = tokenUser.app_metadata?.tenant as string | undefined;
   const role = tokenUser.app_metadata?.role as string | undefined;
-  if (tenant !== 'otp' && role !== 'agency_owner') {
-    return NextResponse.redirect(`${origin}/admin/login?error=unauthorized`);
-  }
+  if (tenant !== "otp" && role !== "agency_owner") return fail("unauthorized");
 
-  const { error } = await supabase.auth.setSession({ access_token, refresh_token });
-  if (error) {
-    return NextResponse.redirect(`${origin}/admin/login?error=invalid_session`);
-  }
+  const { error } = await supabase.auth.setSession({
+    access_token: accessToken,
+    refresh_token: refreshToken,
+  });
+  if (error) return fail("invalid_session");
 
-  return NextResponse.redirect(`${origin}/admin`);
+  return response;
 }
