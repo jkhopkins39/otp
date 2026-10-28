@@ -90,13 +90,39 @@ const DEFAULT_TEXT_KEYS = [
   "additionalDetails", "additional_details",
 ];
 
+/** Name field keys used for joke-alias checks and owner-test allowlist. */
+export const NAME_KEYS = [
+  "name", "full_name", "fullName", "contact_name", "referrer_name",
+  "firstName", "lastName", "first_name", "last_name",
+];
+
+/**
+ * Owner test allowlist: submissions from people named Jeremy always pass
+ * screening and must fire the notification email (even for message "test").
+ */
+export function isOwnerTestSubmission(submission: Record<string, unknown>): boolean {
+  const name = NAME_KEYS.map((k) => submission[k]).filter(Boolean).join(" ");
+  const email = String(submission.email ?? "").trim().toLowerCase();
+  if (/\bjeremy\b/i.test(name)) return true;
+  if (email === "jeremy@hoppytech.com") return true;
+  return false;
+}
+
+export const OWNER_TEST_SCREENING = {
+  decision: "accept" as const,
+  category: "genuine_inquiry",
+  confidence: 100,
+  reason: "Owner test submission (Jeremy allowlist).",
+  screened: true,
+  ownerTest: true,
+};
+
 export function prefilter(
   submission: Record<string, unknown>,
   textKeys: string[] = DEFAULT_TEXT_KEYS,
 ): PrefilterHit | null {
   const parts = textKeys.map((k) => despace(normalize(submission[k])));
-  const nameKeys = ["name", "full_name", "fullName", "contact_name", "referrer_name"];
-  const name = despace(normalize(nameKeys.map((k) => submission[k]).filter(Boolean).join(" ")));
+  const name = despace(normalize(NAME_KEYS.map((k) => submission[k]).filter(Boolean).join(" ")));
   const company = despace(normalize(submission.company ?? submission.business_name ?? ""));
   const problem = parts.filter(Boolean).join(" ");
   const all = [name, company, problem].filter(Boolean).join(" | ");

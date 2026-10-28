@@ -20,6 +20,33 @@ function formatDate(ts: number) {
   });
 }
 
+function ScreeningBadge({ s }: { s: DbContactSubmission }) {
+  const decision = s.screening_decision;
+  if (!decision) return null;
+  const meta =
+    decision === "reject"
+      ? { label: "Filtered", cls: "border-red-400/40 bg-red-500/10 text-red-600" }
+      : decision === "review"
+        ? { label: "Review", cls: "border-amber-400/50 bg-amber-500/10 text-amber-600" }
+        : { label: "Legit", cls: "border-green-400/40 bg-green-500/10 text-green-600" };
+  const title = [
+    s.screening_category,
+    s.screening_confidence != null ? `${s.screening_confidence}%` : null,
+    s.screening_reason,
+    s.owner_test ? "owner test" : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  return (
+    <span
+      title={title}
+      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${meta.cls}`}
+    >
+      {meta.label}
+    </span>
+  );
+}
+
 function Field({ label, value }: { label: string; value: string }) {
   if (!value) return null;
   return (
@@ -51,7 +78,10 @@ function SubmissionCard({
     <li className="rounded-2xl border border-border surface-card p-5 shadow-soft">
       <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
         <div>
-          <p className="font-display text-lg font-bold">{s.full_name}</p>
+          <p className="flex flex-wrap items-center gap-2 font-display text-lg font-bold">
+            {s.full_name}
+            <ScreeningBadge s={s} />
+          </p>
           <p className="text-xs text-muted-foreground">{formatDate(s.created_at)}</p>
         </div>
         <div className="flex flex-wrap gap-2">

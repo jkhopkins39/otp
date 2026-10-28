@@ -7,7 +7,12 @@ import {
   getClientIpFromHeaders,
   guardFormSubmission,
 } from "@/lib/security/apiUsageGuard";
-import { prefilter, hasMildProfanity } from "@/lib/security/contentFilter";
+import {
+  prefilter,
+  hasMildProfanity,
+  isOwnerTestSubmission,
+  OWNER_TEST_SCREENING,
+} from "@/lib/security/contentFilter";
 import { createScreener } from "@/lib/security/createScreener";
 import { getSubjectPrompt } from "@/lib/security/subjectPrompts";
 
@@ -126,10 +131,6 @@ function buildEmailHtml(b: Record<string, string>): string {
 
 export async function POST(req: Request) {
   const ip = getClientIpFromHeaders(req.headers);
-  const usage = guardFormSubmission(ip);
-  if (!usage.ok) {
-    return NextResponse.json({ error: usage.error }, { status: usage.status });
-  }
 
   let body: Record<string, string | number>;
 
@@ -157,45 +158,70 @@ export async function POST(req: Request) {
   }
 
   const submission = parsed.data;
+  const ownerTest = isOwnerTestSubmission(submission);
 
-  const blocked = prefilter(submission, [
-    "full_name",
-    "venue",
-    "additional_details",
-    "services",
-    "event_type",
-  ]);
-  const screening = blocked
-    ? {
-        decision: "reject" as const,
-        category: blocked.category,
-        confidence: 100,
-        reason: blocked.reason,
-        screened: true,
-      }
-    : await screenSubmission(submission, {
-        mildProfanity: hasMildProfanity(submission, [
-          "full_name",
-          "venue",
-          "additional_details",
-        ]),
-      });
-
-  if (screening.decision === "reject") {
-    console.warn(
-      `[contact] rejected [${screening.category}] from ${ip}: ${screening.reason}`,
-    );
-    return NextResponse.json({ success: true });
+  // Owner tests (Jeremy) skip the IP rate limit so rapid local testing still emails.
+  if (!ownerTest) {
+    const usage = guardFormSubmission(ip);
+    if (!usage.ok) {
+      return NextResponse.json({ error: usage.error }, { status: usage.status });
+    }
   }
+  const blocked = ownerTest
+    ? null
+    : prefilter(submission, [
+        "full_name",
+        "venue",
+        "additional_details",
+        "services",
+        "event_type",
+      ]);
+  const screening = ownerTest
+    ? OWNER_TEST_SCREENING
+    : blocked
+      ? {
+          decision: "reject" as const,
+          category: blocked.category,
+          confidence: 100,
+          reason: blocked.reason,
+          screened: true,
+          ownerTest: false,
+        }
+      : {
+          ...(await screenSubmission(submission, {
+            mildProfanity: hasMildProfanity(submission, [
+              "full_name",
+              "venue",
+              "additional_details",
+            ]),
+          })),
+          ownerTest: false,
+        };
 
+  // Always store, regardless of screening decision.
   try {
-    await insertContactSubmission(submission);
+    await insertContactSubmission({
+      ...submission,
+      screening_decision: screening.decision,
+      screening_category: screening.category,
+      screening_confidence: screening.confidence,
+      screening_reason: screening.reason,
+      owner_test: screening.ownerTest,
+    });
   } catch (err) {
     console.error("[contact] database save failed:", err);
     return NextResponse.json(
       { error: "Unable to save your request. Please try again or email us directly." },
       { status: 500 },
     );
+  }
+
+  // Rejected: skip Resend, but return a normal success so spammers get no signal.
+  if (screening.decision === "reject") {
+    console.warn(
+      `[contact] filtered [${screening.category}] from ${ip}: ${screening.reason}`,
+    );
+    return NextResponse.json({ success: true });
   }
 
   const resendKey = process.env.RESEND_API_KEY?.trim();

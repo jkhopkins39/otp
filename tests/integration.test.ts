@@ -23,6 +23,27 @@ vi.mock("resend", () => {
   };
 });
 
+vi.mock("../src/lib/security/createScreener", () => ({
+  createScreener: () =>
+    async () => ({
+      decision: "accept" as const,
+      category: "genuine_inquiry",
+      confidence: 95,
+      reason: "Mocked screener accept.",
+      screened: true,
+    }),
+}));
+
+vi.mock("../src/lib/security/apiUsageGuard", async () => {
+  const actual = await vi.importActual<typeof import("../src/lib/security/apiUsageGuard")>(
+    "../src/lib/security/apiUsageGuard",
+  );
+  return {
+    ...actual,
+    guardFormSubmission: () => ({ ok: true as const }),
+  };
+});
+
 process.env.RESEND_API_KEY = process.env.RESEND_API_KEY || "re_test_key";
 process.env.RESEND_FROM_EMAIL = "contact@onetalentproductions.com";
 process.env.RESEND_TO_EMAIL = "onetalentproductions@gmail.com";

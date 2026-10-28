@@ -81,6 +81,13 @@ CREATE TABLE IF NOT EXISTS contact_submissions (
   created_at          BIGINT NOT NULL DEFAULT (EXTRACT(EPOCH FROM NOW())::BIGINT * 1000)
 );
 
+-- Spam screening columns (migration; safe to re-run)
+ALTER TABLE contact_submissions ADD COLUMN IF NOT EXISTS screening_decision text;
+ALTER TABLE contact_submissions ADD COLUMN IF NOT EXISTS screening_category text;
+ALTER TABLE contact_submissions ADD COLUMN IF NOT EXISTS screening_confidence int;
+ALTER TABLE contact_submissions ADD COLUMN IF NOT EXISTS screening_reason text;
+ALTER TABLE contact_submissions ADD COLUMN IF NOT EXISTS owner_test boolean DEFAULT false;
+
 -- ── Seed data ────────────────────────────────────────────────────
 
 INSERT INTO venues (name, display_order) VALUES

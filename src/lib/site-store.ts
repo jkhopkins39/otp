@@ -67,6 +67,19 @@ export type DbContactSubmission = {
   additional_details: string;
   archived: boolean;
   created_at: number;
+  screening_decision?: "accept" | "review" | "reject" | null;
+  screening_category?: string | null;
+  screening_confidence?: number | null;
+  screening_reason?: string | null;
+  owner_test?: boolean | null;
+};
+
+export type ContactScreeningFields = {
+  screening_decision?: "accept" | "review" | "reject" | null;
+  screening_category?: string | null;
+  screening_confidence?: number | null;
+  screening_reason?: string | null;
+  owner_test?: boolean | null;
 };
 
 // ── Seed data (shown when Supabase is not configured) ────────────
@@ -453,18 +466,48 @@ export async function unarchiveContactSubmission(id: string): Promise<void> {
 }
 
 export async function insertContactSubmission(
-  input: Omit<DbContactSubmission, "id" | "created_at" | "archived">,
+  input: Omit<
+    DbContactSubmission,
+    | "id"
+    | "created_at"
+    | "archived"
+    | "screening_decision"
+    | "screening_category"
+    | "screening_confidence"
+    | "screening_reason"
+    | "owner_test"
+  > &
+    ContactScreeningFields,
 ): Promise<void> {
   const sb = getSupabase();
   if (!sb) {
     throw new Error("Database not configured.");
   }
 
-  const { error } = await sb
-    .from("contact_submissions")
-    .insert({ ...input, created_at: Date.now() });
+  const row = { ...input, created_at: Date.now() };
+  const { error } = await sb.from("contact_submissions").insert(row);
 
   if (error) {
+    // Resilience: screening columns not migrated yet -> retry without them.
+    const missingColumn = /screening_|owner_test|column/i.test(error.message);
+    if (missingColumn) {
+      console.warn(
+        "[supabase] contact_submissions screening columns missing; saving without them. Run the screening migration.",
+      );
+      const {
+        screening_decision: _d,
+        screening_category: _c,
+        screening_confidence: _cf,
+        screening_reason: _r,
+        owner_test: _o,
+        ...base
+      } = row;
+      void _d; void _c; void _cf; void _r; void _o;
+      const retry = await sb.from("contact_submissions").insert(base);
+      if (!retry.error) return;
+      console.error("[supabase] contact_submissions insert failed:", retry.error.message);
+      throw new Error(retry.error.message);
+    }
     console.error("[supabase] contact_submissions insert failed:", error.message);
     throw new Error(error.message);
   }
