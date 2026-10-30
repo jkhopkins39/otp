@@ -3,10 +3,7 @@ import { Resend } from "resend";
 import { z } from "zod";
 import { insertContactSubmission } from "@/lib/site-store";
 import { isSpamSubmission } from "@/lib/spam-guard";
-import {
-  getClientIpFromHeaders,
-  guardFormSubmission,
-} from "@/lib/security/apiUsageGuard";
+import { getClientIpFromHeaders } from "@/lib/security/apiUsageGuard";
 import {
   prefilter,
   hasMildProfanity,
@@ -14,6 +11,10 @@ import {
   OWNER_TEST_SCREENING,
 } from "@/lib/security/contentFilter";
 import { createScreener } from "@/lib/security/createScreener";
+import {
+  enforceIpProtection,
+  noteScreeningForIp,
+} from "@/lib/security/ipProtection";
 import { getSubjectPrompt } from "@/lib/security/subjectPrompts";
 
 const contactSchema = z.object({
@@ -162,8 +163,11 @@ export async function POST(req: Request) {
 
   // Owner tests (Jeremy) skip the IP rate limit so rapid local testing still emails.
   if (!ownerTest) {
-    const usage = guardFormSubmission(ip);
+    const usage = await enforceIpProtection({ site: "otp", ip });
     if (!usage.ok) {
+      if (usage.code === "ip_blocked") {
+        return NextResponse.json({ success: true });
+      }
       return NextResponse.json({ error: usage.error }, { status: usage.status });
     }
   }
@@ -197,6 +201,17 @@ export async function POST(req: Request) {
           })),
           ownerTest: false,
         };
+
+  if (!ownerTest) {
+    await noteScreeningForIp({
+      site: "otp",
+      ip,
+      decision: screening.decision,
+      category: screening.category,
+      confidence: screening.confidence,
+      source: blocked ? "prefilter" : "ai",
+    });
+  }
 
   // Always store, regardless of screening decision.
   try {
