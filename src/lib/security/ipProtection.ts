@@ -3,11 +3,82 @@
  * Uses schema `security` on the Hoppy Tech Supabase project.
  */
 
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { HARD_LIMITS } from "./apiUsageGuard";
 
-// Schema-scoped clients are not typed as "public"; keep this local and loose.
-type SecurityClient = ReturnType<typeof createClient>;
+/** Minimal Database typing for the shared `security` schema (not in app-generated types). */
+type SecurityDatabase = {
+  security: {
+    Tables: {
+      form_events: {
+        Row: {
+          id: number;
+          site: string;
+          ip: string;
+          event_type: string;
+          category: string | null;
+          confidence: number | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: number;
+          site: string;
+          ip: string;
+          event_type: string;
+          category?: string | null;
+          confidence?: number | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: number;
+          site?: string;
+          ip?: string;
+          event_type?: string;
+          category?: string | null;
+          confidence?: number | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      ip_blocks: {
+        Row: {
+          ip: string;
+          reason: string;
+          source_site: string | null;
+          strike_count: number;
+          blocked_until: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          ip: string;
+          reason: string;
+          source_site?: string | null;
+          strike_count?: number;
+          blocked_until: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          ip?: string;
+          reason?: string;
+          source_site?: string | null;
+          strike_count?: number;
+          blocked_until?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+    };
+    Views: Record<string, never>;
+    Functions: Record<string, never>;
+    Enums: Record<string, never>;
+    CompositeTypes: Record<string, never>;
+  };
+};
+
+export type SecurityClient = SupabaseClient<SecurityDatabase, "security">;
 
 export const IP_PROTECTION = Object.freeze({
   AUTO_BAN_CONFIDENCE: 80,
@@ -63,10 +134,10 @@ export function createSecurityClient(
 ): SecurityClient | null {
   const resolved = url && key ? { url, key } : resolveSupabaseSecurityConfig();
   if (!resolved) return null;
-  return createClient(resolved.url, resolved.key, {
+  return createClient<SecurityDatabase, "security">(resolved.url, resolved.key, {
     db: { schema: "security" },
     auth: { persistSession: false, autoRefreshToken: false },
-  }) as SecurityClient;
+  });
 }
 
 async function recordEvent(
