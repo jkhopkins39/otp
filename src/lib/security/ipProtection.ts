@@ -7,8 +7,7 @@ import { createClient } from "@supabase/supabase-js";
 import { HARD_LIMITS } from "./apiUsageGuard";
 
 // Schema-scoped clients are not typed as "public"; keep this local and loose.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type SecurityClient = ReturnType<typeof createClient<any, "security", any>>;
+type SecurityClient = ReturnType<typeof createClient>;
 
 export const IP_PROTECTION = Object.freeze({
   AUTO_BAN_CONFIDENCE: 80,
