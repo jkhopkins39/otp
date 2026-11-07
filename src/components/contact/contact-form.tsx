@@ -67,9 +67,17 @@ const fieldBase =
   "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 focus:ring-offset-card focus:border-gold " +
   "hover:border-gold";
 
-function Label({ children, required }: { children: React.ReactNode; required?: boolean }) {
+function Label({
+  children,
+  required,
+  htmlFor,
+}: {
+  children: React.ReactNode;
+  required?: boolean;
+  htmlFor: string;
+}) {
   return (
-    <label className="block text-sm font-medium text-foreground">
+    <label htmlFor={htmlFor} className="block text-sm font-medium text-foreground">
       {children}
       {required && <span className="ml-1 text-gold-strong" aria-hidden>*</span>}
     </label>
@@ -191,8 +199,9 @@ export function ContactForm() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <FieldGroup className="sm:col-span-2">
-          <Label>Name</Label>
+          <Label htmlFor="full_name">Name</Label>
           <input
+            id="full_name"
             type="text"
             name="full_name"
             placeholder="Jane Smith"
@@ -202,8 +211,9 @@ export function ContactForm() {
         </FieldGroup>
 
         <FieldGroup>
-          <Label required>Email Address</Label>
+          <Label htmlFor="email" required>Email Address</Label>
           <input
+            id="email"
             type="email"
             name="email"
             placeholder="you@example.com"
@@ -214,8 +224,9 @@ export function ContactForm() {
         </FieldGroup>
 
         <FieldGroup>
-          <Label required>Phone Number</Label>
+          <Label htmlFor="phone" required>Phone Number</Label>
           <input
+            id="phone"
             type="tel"
             name="phone"
             placeholder="(555) 555-5555"
@@ -231,8 +242,8 @@ export function ContactForm() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <FieldGroup>
-          <Label>Type of Event</Label>
-          <select name="event_type" className={cn(fieldBase, "cursor-pointer")}>
+          <Label htmlFor="event_type">Type of Event</Label>
+          <select id="event_type" name="event_type" className={cn(fieldBase, "cursor-pointer")}>
             <option value="">Select an event type…</option>
             {EVENT_TYPES.map((t) => (
               <option key={t} value={t}>{t}</option>
@@ -241,8 +252,9 @@ export function ContactForm() {
         </FieldGroup>
 
         <FieldGroup>
-          <Label>Event Date</Label>
+          <Label htmlFor="event_date">Event Date</Label>
           <input
+            id="event_date"
             type="date"
             name="event_date"
             className={cn(fieldBase, "cursor-pointer")}
@@ -250,18 +262,20 @@ export function ContactForm() {
         </FieldGroup>
 
         <FieldGroup className="sm:col-span-2">
-          <Label>Venue Name &amp; Location</Label>
+          <Label htmlFor="venue">Venue Name &amp; Location</Label>
           <input
+            id="venue"
             type="text"
             name="venue"
             placeholder="The Grand Hall, Carrollton, GA"
+            autoComplete="off"
             className={fieldBase}
           />
         </FieldGroup>
 
         <FieldGroup>
-          <Label>Expected Attendance</Label>
-          <select name="expected_attendance" className={cn(fieldBase, "cursor-pointer")}>
+          <Label htmlFor="expected_attendance">Expected Attendance</Label>
+          <select id="expected_attendance" name="expected_attendance" className={cn(fieldBase, "cursor-pointer")}>
             <option value="">Select a range…</option>
             {ATTENDANCE_OPTIONS.map((o) => (
               <option key={o} value={o}>{o}</option>
@@ -270,8 +284,8 @@ export function ContactForm() {
         </FieldGroup>
 
         <FieldGroup>
-          <Label>Indoor or Outdoor?</Label>
-          <select name="venue_type" className={cn(fieldBase, "cursor-pointer")}>
+          <Label htmlFor="venue_type">Indoor or Outdoor?</Label>
+          <select id="venue_type" name="venue_type" className={cn(fieldBase, "cursor-pointer")}>
             <option value="">Select…</option>
             <option value="Indoor">Indoor</option>
             <option value="Outdoor">Outdoor</option>
@@ -330,8 +344,8 @@ export function ContactForm() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <FieldGroup>
-          <Label>Setup / Load-in Window</Label>
-          <select name="setup_window" className={cn(fieldBase, "cursor-pointer")}>
+          <Label htmlFor="setup_window">Setup / Load-in Window</Label>
+          <select id="setup_window" name="setup_window" className={cn(fieldBase, "cursor-pointer")}>
             <option value="">Select…</option>
             {SETUP_WINDOWS.map((w) => (
               <option key={w} value={w}>{w}</option>
@@ -340,8 +354,8 @@ export function ContactForm() {
         </FieldGroup>
 
         <FieldGroup>
-          <Label>Estimated Budget</Label>
-          <select name="budget_range" className={cn(fieldBase, "cursor-pointer")}>
+          <Label htmlFor="budget_range">Estimated Budget</Label>
+          <select id="budget_range" name="budget_range" className={cn(fieldBase, "cursor-pointer")}>
             <option value="">Select a range…</option>
             {BUDGET_RANGES.map((b) => (
               <option key={b} value={b}>{b}</option>
@@ -350,8 +364,8 @@ export function ContactForm() {
         </FieldGroup>
 
         <FieldGroup className="sm:col-span-2">
-          <Label>How did you hear about us?</Label>
-          <select name="referral_source" className={cn(fieldBase, "cursor-pointer")}>
+          <Label htmlFor="referral_source">How did you hear about us?</Label>
+          <select id="referral_source" name="referral_source" className={cn(fieldBase, "cursor-pointer")}>
             <option value="">Select…</option>
             {REFERRAL_SOURCES.map((r) => (
               <option key={r} value={r}>{r}</option>
@@ -360,8 +374,9 @@ export function ContactForm() {
         </FieldGroup>
 
         <FieldGroup className="sm:col-span-2">
-          <Label>Anything else we should know?</Label>
+          <Label htmlFor="additional_details">Anything else we should know?</Label>
           <textarea
+            id="additional_details"
             name="additional_details"
             rows={4}
             placeholder="Tell us about any special requirements, recurring events, existing equipment, accessibility needs, or anything else that would help us prepare."

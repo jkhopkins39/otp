@@ -48,12 +48,12 @@ export function ImageUpload({ value, onChange, bucket = "otp-images" }: Props) {
         {value && (
           <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-border">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={value} alt="" className="h-full w-full object-cover" />
+            <img src={value} alt="Uploaded image preview" className="h-full w-full object-cover" />
             <button
               type="button"
               onClick={() => onChange("")}
               aria-label="Remove photo"
-              className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100"
+              className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity hover:opacity-100 focus-visible:opacity-100"
             >
               <X className="h-4 w-4 text-white" />
             </button>
@@ -78,6 +78,8 @@ export function ImageUpload({ value, onChange, bucket = "otp-images" }: Props) {
         value={value}
         onChange={e => onChange(e.target.value)}
         placeholder="https://…"
+        aria-label="Image URL"
+        autoComplete="off"
       />
       <input
         ref={inputRef}

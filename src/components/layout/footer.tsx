@@ -21,7 +21,7 @@ export function Footer() {
                   key={s.label}
                   href={s.href}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:border-gold hover:text-foreground"
                 >
                   {s.label}
@@ -83,7 +83,7 @@ export function Footer() {
             <a
               href="https://www.hoppytech.com/?utm_source=otp"
               target="_blank"
-              rel="noopener"
+              rel="noopener noreferrer"
               className="rounded-md font-medium text-gold-strong underline-offset-4 transition-colors hover:underline"
             >
               Hoppy Tech
